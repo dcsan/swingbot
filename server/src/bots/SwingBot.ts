@@ -151,11 +151,11 @@ const SwingBot = {
     return snap
   },
 
-  checkSwing(snap: ISnap): ISnap {
-    if (bot.stack.length < 5) {return snap}
+  checkSwing(snap: ISnap, stack: ISnap[]): ISnap {
+    if (stack.length < 5) {return snap}
 
     // easier to count forward
-    let calcStack = lodash.clone(bot.stack)
+    let calcStack = lodash.clone(stack)
     calcStack.reverse()
 
     // console.log('stack', bot.stack)
@@ -252,7 +252,7 @@ const SwingBot = {
       if (bot.stack.length > STACK_LENGTH) {
         bot.stack.shift() // remove first/oldest member
       }
-      snap = SwingBot.checkSwing(snap)
+      snap = SwingBot.checkSwing(snap, bot.stack)
       if (!snap.action) {
         snap = SwingBot.checkStop(snap)
       }
