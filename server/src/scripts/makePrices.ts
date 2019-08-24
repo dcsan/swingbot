@@ -1,3 +1,7 @@
-import DataSource from '../lib/DataSource'
+import PriceData from '../models/PriceData'
 
-DataSource.writeFile('priceList01.csv', 1000)
+async function main() {
+  await PriceData.loadBinanceData()
+}
+
+main()

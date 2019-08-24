@@ -1,6 +1,9 @@
 import chalk from "chalk"
 import fs = require('fs')
 import path = require('path')
+import AppConfig from '../config/AppConfig'
+// const AppConfig = require('../config/AppConfig')
+
 // const fsPromises = fs.promises
 
 // this should NOT depend on any other files in the app
@@ -60,7 +63,11 @@ class Logger {
     // suspend output during tests
     text = `${this.where}  |  ${text}`
     fs.appendFileSync(logPath, text + '\n')
-    if (!process.env.TESTING && !this.silent) {
+    if (AppConfig.testing || this.silent) {
+      // console.log('testing', AppConfig.testing)
+      // skip log
+    } else {
+      console.log('NOT testing')
       console.log(wrap(text))
     }
   }

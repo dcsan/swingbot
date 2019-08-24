@@ -1,7 +1,9 @@
-import MoodyBot from "../bots/MoodyBot"
+import {MoodyBot} from "../bots/MoodyBot"
 import DataSource from '../lib/DataSource'
 
-// import { priceData } from '../../data/prices.csv'
+import {
+  IPrice
+} from "../types/types"
 
 const priceList = [
   10000,
@@ -26,44 +28,39 @@ const priceList = [
   10100,
 ]
 
-import {
-  Kalk,
-  IKalk
-} from '../lib/Kalk'
+// import {
+//   Kalk,
+//   IKalk
+// } from '../lib/Kalk'
 
-// based on the price data above
-xtest('simpleTrader', () => {
-  let bot = new MoodyBot()
-  priceList.forEach(p => {
-    let state = bot.tick(p)
-    console.log(state.calc.action)
-    console.log(state.result)
+describe('moody bot', () => {
+
+  // based on the price data above
+  xtest('simpleTrader', () => {
+    let bot = new MoodyBot()
+    priceList.forEach(p => {
+      const ip: IPrice = {
+        open: p
+      }
+      bot.tick(ip)
+      // console.log(state.calc.action)
+      // console.log(state.result)
+    })
+    expect(bot.state.total).toEqual(-10)  // not very good
   })
-})
 
-// based on random data
-xtest('randomTrader', () => {
-  let bot = new MoodyBot()
-  let priceList = DataSource.generate(200)
-  priceList.forEach(p => {
-    let state = bot.tick(p)
-    // console.log(state.calc.action)
-    // console.log(state.result)
+  // based on random data
+  xtest('randomTrader', () => {
+    let bot = new MoodyBot()
+    let priceList = DataSource.generate(200)
+    priceList.forEach(p => {
+      const ip = {
+        open: p
+      }
+      bot.tick(ip)
+    })
+    expect(bot.state.total).toBeDefined()  // not very good
+    console.log('random.total', bot.state.total)
   })
-  console.log('final.total', bot.state.total)
-})
 
-// based on binance data
-xtest('parseBinanceData', async(done) => {
-  let bot = new MoodyBot()
-  let parser = await DataSource.pipeCsvData('Binance_BTCUSDT_1h.csv', 50)
-  done()
 })
-
-test('extractBinanceData', async(done) => {
-  let bot = new MoodyBot()
-  // let parser = await DataSource.extractData('Binance_BTCUSDT_1h.csv')
-  let parser = await DataSource.extractData('BinanceTest.csv')
-  done()
-})
-

@@ -2,11 +2,18 @@ const path = require('path')
 const fs = require('fs')
 var csvWriter = require('csv-write-stream')
 
+import {
+  IPrice
+} from '../types/types'
 
 import {
   Kalk,
   IKalk
 } from '../lib/Kalk'
+
+interface IBotOpts {
+  logfile?: string
+}
 
 interface ITrade {
   in: number
@@ -42,29 +49,30 @@ class MoodyBot {
     total: 0,
     counter: 0
   }
-  logger: any // streamWriter
+  txLogger: any // streamWriter
 
-  constructor() {
-    let fileName = 'tradeLog.csv'
-    const fp = path.join(__dirname, '../../data', fileName)
+  constructor(opts: IBotOpts = {}) {
+    let logfile = opts.logfile || 'tradeLog.csv'
+    const fp = path.join(__dirname, '../../data', logfile)
     let options = {
       headers: [
         'counter',
+        'idx',
+        'date',
         'last1', 'last2', 'diff1', 'dir', 'miniChart', 'swing',
-        'action',
-        'reason', 'didAction',
+        'action', 'reason', 'didAction',
         'active', 'in', 'out', 'profit',
         'total'
       ]
     }
-
-    let logger = csvWriter(options)
+    let txLogger = csvWriter(options)
     let stream = fs.createWriteStream(fp)
-    logger.pipe(stream)
-    this.logger = logger
+    txLogger.pipe(stream)
+    this.txLogger = txLogger
   }
 
-  tick(price: number) {
+  tick(ip: IPrice) {
+    let price = ip.open
     this.state.counter++
     this.prices.push(price)
     this.prices = this.prices.slice(- STACK_SIZE)
@@ -80,7 +88,7 @@ class MoodyBot {
       default:
         result = this.hold(calc)
     }
-    this.logTick(calc, result)
+    this.logTick(calc, result, ip)
     return ({
       calc,
       result,
@@ -136,13 +144,16 @@ class MoodyBot {
     }
   }
 
-  logTick(calc: IKalk, result: IResult) {
+  logTick(calc: IKalk, result: IResult, ip: IPrice) {
     // console.log('merging', calc, result, this.trade, this.state) // check no collisions
-    let obj = Object.assign(calc, this.trade, result, this.state)
-    this.logger.write(obj)
+    let obj = Object.assign(ip, calc, this.trade, result, this.state)
+    this.txLogger.write(obj)
   }
 
 }
 
-export default MoodyBot
+export {
+  IBotOpts,
+  MoodyBot
+}
 

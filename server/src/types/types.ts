@@ -1,7 +1,28 @@
+
+// only open price is required
 export interface IPrice {
-  price: number
-  time?: number
+  open: number
+  date?: Date
+  symbol?: string
+  high?: number
+  low?: number
+  close?: number
+  idx?: number
+  when?: string
+  time?: string
+  hour?: number
+  ampm?: string
+  btc_volume?: number
+  usdt_volume?: number
+  timestamp?: number
+  avg?: number
 }
+
+
+// export interface IPrice {
+//   price: number
+//   time?: number
+// }
 
 export interface ITX {
   stamp?: number     // timestamp

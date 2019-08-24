@@ -13,6 +13,8 @@ interface IKalk {
   dir: string
 }
 
+const STEP = 1  // needed to trigger change
+
 const Kalk = {
 
   miniChart( history: number[] ): string {
@@ -24,8 +26,8 @@ const Kalk = {
       }
       let dir = '-'
       if (price === lastPrice) { dir = '-' }
-      if (price < lastPrice) { dir = 'D' }
-      if (price > lastPrice) { dir = 'U' }
+      if (price < (lastPrice - STEP)) { dir = 'D' }
+      if (price > (lastPrice + STEP)) { dir = 'U' }
       lastPrice = price
       return dir
     })
@@ -35,9 +37,9 @@ const Kalk = {
 
   swing(miniChart: string): string {
     let sw = '-'
-    if (/DDUUU$/.test(miniChart)) sw = 'S-U' // swing up
-    if (/UUU$/.test(miniChart)) sw = 'R-U' // run up
-    if (/UUDD$/.test(miniChart)) sw = 'S-D'
+    if (/DDUU$/.test(miniChart)) sw = 'S-U' // swing up
+    if (/UU$/.test(miniChart)) sw = 'R-U' // run up
+    if (/UDD$/.test(miniChart)) sw = 'S-D'
     if (/DD$/.test(miniChart)) sw = 'R-D'
     // if (/DDD$/.test(miniChart)) sw = 'R-D'
     // if (/DDDD$/.test(miniChart)) sw = 'R-D'
