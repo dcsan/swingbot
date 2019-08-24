@@ -1,4 +1,4 @@
-import RandomPricer from '../lib/RandomPricer'
+import DataSource from '../lib/DataSource'
 import {
   IKalk,
   Kalk
@@ -9,7 +9,7 @@ const STACK_SIZE = 5
 // slow test
 xtest('random prices', () => {
   for (let x = 0; x < 1000; x++) {
-    let p = RandomPricer.randRange(1, -1)
+    let p = DataSource.randRange(1, -1)
     expect(p).toBeGreaterThan(-10)
     expect(p).toBeLessThan(10)
     console.log(p)
@@ -19,7 +19,7 @@ xtest('random prices', () => {
 xtest('price run', () => {
   let prices: number[] = []
   for (let x = 0; x < 1000; x++) {
-    let p = RandomPricer.get()
+    let p = DataSource.get()
     prices.push(p)
     prices = prices.slice(-STACK_SIZE)
     let k = Kalk.calcAll(prices)
@@ -32,11 +32,11 @@ xtest('price run', () => {
 })
 
 test('generate', () => {
-  let prices = RandomPricer.generate(100)
+  let prices = DataSource.generate(100)
   expect(prices.length).toBe(100)
 })
 
 
 test('writeFile', () => {
-  let prices = RandomPricer.writeFile('prices.csv')
+  let prices = DataSource.writeFile('prices.csv')
 })

@@ -1,3 +1,3 @@
-import RandomPricer from '../lib/RandomPricer'
+import DataSource from '../lib/DataSource'
 
-RandomPricer.writeFile('priceList01.csv', 1000)
+DataSource.writeFile('priceList01.csv', 1000)
