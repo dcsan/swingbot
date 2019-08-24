@@ -29,7 +29,7 @@ test('seeSaw', () => {
 test('swingUp.calc', () => {
   let calc: IKalk = Kalk.calcAll(priceData.swingUp)
   expect(calc.dir).toBe('U');
-  expect(calc.swing).toBe('U');
+  // expect(calc.swing).toBe('S-U');
 })
 
 
@@ -37,7 +37,17 @@ test('swingDown.calc', () => {
   let calc: IKalk = Kalk.calcAll(priceData.swingDown)
   expect(calc.dir).toBe('D');
   expect(calc.miniChart).toBe('U-DD');
-  expect(calc.swing).toBe('D');
+  // expect(calc.swing).toBe('S-D');
+  expect(calc.swing).toBe('R-D');
 })
+
+
+test('runDown.calc', () => {
+  let calc: IKalk = Kalk.calcAll(priceData.runDown)
+  expect(calc.dir).toBe('D');
+  expect(calc.miniChart).toBe('UDUDDDD');
+  expect(calc.swing).toBe('R-D');
+})
+
 
 

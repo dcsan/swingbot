@@ -9,6 +9,7 @@ interface IKalk {
   diff1: number
   miniChart: string
   swing: string
+  action: string
   dir: string
 }
 
@@ -34,10 +35,12 @@ const Kalk = {
 
   swing(miniChart: string): string {
     let sw = '-'
-    if (/DDUU$/.test(miniChart)) sw = 'U'
-    if (/UUDD$/.test(miniChart)) sw = 'D'
-    if (/DDD$/.test(miniChart)) sw = 'D'
-    if (/-DD$/.test(miniChart)) sw = 'D'
+    if (/DDUUU$/.test(miniChart)) sw = 'S-U' // swing up
+    if (/UUU$/.test(miniChart)) sw = 'R-U' // run up
+    if (/UUDD$/.test(miniChart)) sw = 'S-D'
+    if (/DD$/.test(miniChart)) sw = 'R-D'
+    // if (/DDD$/.test(miniChart)) sw = 'R-D'
+    // if (/DDDD$/.test(miniChart)) sw = 'R-D'
     return sw
   },
 
@@ -46,15 +49,24 @@ const Kalk = {
     const last1 = history[history.length - 1]
     const last2 = history[history.length - 2]
     const diff1 = last1 - last2
+    const swing = Kalk.swing(miniChart)
+    const action = Kalk.calcAction(swing)
     let result: IKalk = {
       last1,
       last2,
       diff1,
       miniChart,
-      swing: Kalk.swing(miniChart),
+      swing,
+      action,
       dir: miniChart[miniChart.length - 1]
     }
     return result
+  },
+
+  calcAction(swing: string) {
+    if (/-U$/.test(swing)) return 'BUY'
+    if (/-D$/.test(swing)) return 'SELL'
+    return 'HOLD'
   }
 
 }

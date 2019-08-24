@@ -38,10 +38,22 @@ const seeSaw: number[] = [
   99
 ]
 
+const runDown: number[] = [
+  100,
+  101,
+  99,
+  120,
+  118,
+  115,
+  112,
+  110
+]
+
 export const priceData = {
   swingUp,
   swingDown,
   oneDown,
-  seeSaw
+  seeSaw,
+  runDown
 }
 

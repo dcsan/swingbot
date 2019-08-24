@@ -1,4 +1,12 @@
 let lastPrice = 10000
+const path = require('path')
+const fs = require('fs')
+var csvWriter = require('csv-write-stream')
+
+import {
+  IKalk,
+  Kalk
+} from '../lib/Kalk'
 
 const RandomPricer = {
 
@@ -21,6 +29,26 @@ const RandomPricer = {
       prices.push(p)
     }
     return prices
+  },
+
+  writeFile(fileName: string, count: number = 500) {
+    const fp = path.join(__dirname, '../../data', fileName)
+    let options = {
+      headers: ['last1', 'last2', 'diff1', 'miniChart', 'dir', 'swing', 'action']
+    }
+    var writer = csvWriter(options)
+    var stream = fs.createWriteStream(fp)
+    writer.pipe(stream)
+    let priceData = RandomPricer.generate(count)
+    let prices: number[] = []
+    priceData.forEach(p => {
+      prices.push(p)
+      prices = prices.slice(-5)
+      let calc: IKalk = Kalk.calcAll(prices)
+      // console.log(calc)
+      writer.write(calc)
+    })
+    writer.end()
   }
 
 }

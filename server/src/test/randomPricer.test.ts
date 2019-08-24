@@ -35,3 +35,8 @@ test('generate', () => {
   let prices = RandomPricer.generate(100)
   expect(prices.length).toBe(100)
 })
+
+
+test('writeFile', () => {
+  let prices = RandomPricer.writeFile('prices.csv')
+})
