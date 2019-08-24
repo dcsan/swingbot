@@ -1,14 +1,21 @@
 import Logger from '../lib/Logger'
 const logger = new Logger('TxLog')
-const BaseModel = require('./BaseModel')
+import BaseModel from "./BaseModel"
+
+import {
+  ISnap,
+  ITX,
+  IPrice
+} from "../types/types"
+
 
 let coll: any
 
-class TxLog extends BaseModel {
+class TxLog {
 
   public static async init() {
     if (coll) return coll
-    coll = super.init('TxLog')
+    coll = await BaseModel.init('TxLog')
   }
 
   public static coll() {
@@ -17,6 +24,17 @@ class TxLog extends BaseModel {
     } else {
       return coll
     }
+  }
+
+  public static async removeAll() {
+    await TxLog.init()
+    await coll.removeMany({})
+  }
+
+  public static async write(tx: ITX) {
+    tx.stamp = Date.now()
+    await TxLog.init()
+    await coll.insert(tx)
   }
 
 }

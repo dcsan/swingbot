@@ -1,6 +1,6 @@
 // do this as early as possible in app setup
 import * as dotenv from "dotenv"
-
+const path = require('path')
 import Logger from "../lib/Logger"
 const logger = new Logger("AppConfig")
 
@@ -10,7 +10,7 @@ if (!nodeEnv) {
   nodeEnv = 'local'
 }
 
-const envPath = `config/${nodeEnv}.env`
+const envPath = path.join(__dirname, `${nodeEnv}.env`)
 dotenv.config({ path: envPath })
 logger.info('using envPath', envPath)
 

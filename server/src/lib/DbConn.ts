@@ -3,13 +3,14 @@ const logger = new Logger("DbConn")
 import { MongoClient, Db, Collection } from "mongodb"
 
 import AppConfig from "../config/AppConfig"
+const assert = require('assert')
 
 // careful not to stamp on 'bot-env' DB names / collections
 
-const dbName = AppConfig.appName
+const dbName = AppConfig.dbName
 if (!dbName) {
-  logger.error('env', process.env)
-  throw new Error('no APP_NAME is set in process.env')
+  logger.error('env', AppConfig)
+  throw new Error('no dbName is set in process.env')
 }
 
 // let mongoClient: any = null
@@ -30,8 +31,8 @@ const DbConn = {
         if (err) {
           reject (err)
         }
-        // test.equal(null, err)
-        // test.ok(db != null)
+        assert.equal(null, err)
+        assert.ok(db != null)
         dbHandle = db.db(AppConfig.dbName)
         logger.log('got dbHandle')
         resolve(dbHandle)

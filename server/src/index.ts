@@ -1,5 +1,10 @@
 console.log('starting')
 
-import BinLib from "./lib/binance"
+import SwingBot from "./bots/SwingBot"
 
-BinLib.watch()
+const main = async () => {
+  await SwingBot.init()
+}
+
+main()
+
