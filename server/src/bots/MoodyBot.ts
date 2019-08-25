@@ -73,6 +73,7 @@ class MoodyBot {
         'total'
       ]
     }
+    fs.unlinkSync(logPath)
     let txLogger = csvWriter(options)
     let stream = fs.createWriteStream(logPath)
     txLogger.pipe(stream)

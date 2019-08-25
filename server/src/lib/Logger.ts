@@ -64,22 +64,22 @@ class Logger {
     text = `${this.where}  |  ${text}`
     fs.appendFileSync(logPath, text + '\n')
     if (AppConfig.testing || this.silent) {
-      // console.log('testing', AppConfig.testing)
       // skip log
+      // console.log('testing', AppConfig.testing)
     } else {
-      console.log('NOT testing')
       console.log(wrap(text))
     }
   }
 
   public warn(...args: any) {
     if (this.silent) { return }
+    if (!/warn/.test(AppConfig.logMode)) { return }
     // console.log(chalk.yellow("\n--- WARNING ----"))
     this.output(chalk.yellow, args)
   }
 
   public error(...args: any) {
-    // if (this.testing) {return}
+    if (!/error/.test(AppConfig.logMode)) { return }
     console.log(chalk.inverse.red("\n--- ERROR ----", args[0]))
     this.output(chalk.red, args)
     // console.log(chalk.red(this.whereFrom(), ...args))
@@ -100,14 +100,22 @@ class Logger {
   }
 
   public info(...args: any) {
+    if (!/info/.test(AppConfig.logMode)) { return }
     this.output(chalk.white, args)
   }
 
   public log(...args: any) {
+    if (!/log/.test(AppConfig.logMode)) { return }
     this.output(chalk.grey, args)
   }
 
+  public report(...args: any) {
+    if (!/report/.test(AppConfig.logMode)) { return }
+    this.output(chalk.black.bgGreen, args)
+  }
+
   public green(...args: any) {
+    if (!/green/.test(AppConfig.logMode)) { return }
     args = Logger.splatArgs(args)
     if (this.silent) {return}
     console.log(chalk.green(this.whereFrom(), ...args))

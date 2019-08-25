@@ -33,6 +33,7 @@ const AppConfig = {
   appName: appName,
   dbName: appName,
   mongoUri: mongoUri,
+  logMode: process.env.logMode || 'error|warn|green|fatal|report',
   testing
 }
 

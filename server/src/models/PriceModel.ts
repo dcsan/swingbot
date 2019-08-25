@@ -36,9 +36,9 @@ class PriceModel {
     await coll.insertMany(rows)
   }
 
-  public static async find(finder: any): Promise<IPrice[]> {
+  public static async find(finder: any, sorter: any): Promise<IPrice[]> {
     await PriceModel.init()
-    let data: IPrice[] = await coll.find(finder).toArray()
+    let data: IPrice[] = await coll.find(finder).sort(sorter).toArray()
     return data
   }
 

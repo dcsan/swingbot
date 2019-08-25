@@ -13,6 +13,8 @@ import {
   Kalk
 } from './Kalk'
 
+const calco = new Kalk()
+
 const DataSource = {
 
   randRange(min: number, max: number) {
@@ -55,7 +57,7 @@ const DataSource = {
     priceData.forEach(p => {
       prices.push(p)
       prices = prices.slice(-5)
-      let calc: IKalk = Kalk.calcAll(prices)
+      let calc: IKalk = calco.calcAll(prices)
       // console.log(calc)
       writer.write(calc)
     })
@@ -183,57 +185,6 @@ const DataSource = {
     })
 
   }
-
-
-  // async readCsvData(fileName?: string, maxLines: number = 250) {
-  //   let count = 0
-  //   fileName = fileName || 'Binance_BTCUSDT_1h.csv'
-  //   const fp = RandomPricer.dataFilePath(fileName)
-  //   const stream = fs.createReadStream(fp, { encoding: 'utf8' });
-  //   const parser = parse()
-  //   stream.pipe(parser)
-
-  //   let p = new Promise((resolve, reject) => {
-  //     parser.on('end', function () {
-  //       console.log('ended')
-  //       resolve(p)
-  //     })
-  //     parser.on('error', function (err: any) {
-  //       console.error(err.message)
-  //     })
-  //     parser.on('readable', function () {
-  //       let record
-  //       while (record = parser.read()) {
-  //         console.log('record', record)
-  //         // output.push(record)
-  //       }
-  //     })
-  //   })
-
-  //   return (parser)
-
-  // let p = new Promise((resolve, reject) => {
-  //   stream.on('data', (data: any) => {
-  //     count++
-  //     console.log('data', count, maxLines)
-  //     // if (count > maxLines) {
-  //     //   stream.destroy();
-  //     // }
-  //   });
-  //   stream.on('end', () => {
-  //     console.log('stream end')
-  //   })
-
-  //   stream.on('close', () => {
-  //     console.log('stream close')
-  //     // console.log('stream end');
-  //     // resolve(stream)
-  //   });
-  // })
-
-  // return p
-
-  // }
 
 }
 

@@ -22,10 +22,10 @@ const DbConn = {
 
   async init () {
     if (dbHandle) {
-      logger.log('return cached dbConn')
+      // logger.log('return cached dbConn')
       return (dbHandle)
     }
-    logger.info('connect mongoUri: ', AppConfig.mongoUri)
+    // logger.info('connect mongoUri: ', AppConfig.mongoUri)
     return new Promise((resolve, reject) => {
       MongoClient.connect(AppConfig.mongoUri, {
         useNewUrlParser: true,
@@ -37,7 +37,7 @@ const DbConn = {
         assert.equal(null, err)
         assert.ok(db != null)
         dbHandle = db.db(AppConfig.dbName)
-        logger.log('got dbHandle')
+        // logger.log('got dbHandle')
         resolve(dbHandle)
       })
     })
@@ -64,7 +64,7 @@ const DbConn = {
       dbHandle = await DbConn.init()
     }
     const collName: string = await DbConn.getCollName(name)
-    logger.log('getColl', collName)
+    // logger.log('getColl', collName)
     const coll: Collection = dbHandle.collection(collName)
     return coll
   },

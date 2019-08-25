@@ -18,12 +18,18 @@ interface IKalkConfig {
   stepDown: number
 }
 
+const defaultConfig: IKalkConfig = {
+  stepUp: 5,
+  stepDown: 10
+}
+
+
 const DEFAULT_STEP = 10  // needed to trigger change
 
 class Kalk {
   config: IKalkConfig
 
-  constructor(config: IKalkConfig) {
+  constructor(config: IKalkConfig = defaultConfig) {
     this.config = config
   }
 
