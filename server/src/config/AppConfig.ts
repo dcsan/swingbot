@@ -37,6 +37,7 @@ const AppConfig = {
   nodeEnv,
   logMode,
   testing,
+  port: process.env.port || 6060,
   init() {
     console.log('AppConfig,nodeEnv', nodeEnv)
     console.log('AppConfig,logMode', logMode)

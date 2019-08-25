@@ -58,7 +58,7 @@ $ NODE_ENV=local ts-node src/runners/SwingRun.ts
 [    SwingRun]  |  log: swinger.log.csv
 ```
 
-![Logs](client/static/swing-run.png)
+![Logs](server/static/swing-run.png)
 
 So, obviously not a good trading strategy!
 It lost **$131** even though the market went up by nearly $2342 in the same period.
@@ -129,7 +129,7 @@ You can see more details of the trading log in a csv file eg `logs/swinger.log.c
 
 As the trader sim runs it writes logs here.
 
-![Logs](client/static/trade-log.png)
+![Logs](server/static/trade-log.png)
 
 (viewing the CSV file with a VScode plugin)
 The date formats are compatible with google docs if you want to import and see graphs.

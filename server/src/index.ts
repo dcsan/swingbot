@@ -1,9 +1,24 @@
-console.log('starting')
+import express from "express";
+import Logger from './lib/Logger'
+const logger = new Logger('index')
 
-import SwingBot from "./bots/SwingBot"
+
+import AppConfig from './config/AppConfig'
+// console.log('starting')
+
+const app: express.Application = express()
+
+import chartApi from './api/chart.api'
+app.use(chartApi)
+
+app.get( "/", ( req, res ) => {
+  res.send( "hello world" );
+})
 
 const main = async () => {
-  await SwingBot.init()
+  let port = AppConfig.port
+  logger.log('listening on port', port)
+  app.listen({port})
 }
 
 main()
