@@ -1,7 +1,6 @@
-# TraderBot
+# Trader SimBot
 
-Simple trading bot simulator, running against market historical data.
-Using nodeJS and typescript
+Simple crypto trading bot simulator, running against market historical data. Using nodeJS/mongo/typescript
 
 
 ## requirements
@@ -30,7 +29,7 @@ Otherwise just leave the keys out, we can also run against historical downloaded
     npm i
 
 
-## gettting data to work with
+## Gettting data to work with
 Get some historial BTC-USD price data
 
 note: there's already some data in the repo, but this will load latest data.
@@ -40,19 +39,18 @@ you'll want to run this script to load it into mongoDB though.
 
 this will download some CSV data, and load into a local mongoDB
 
-## running a test bot
-using `ts-node` to run typescript at the command line from 'server' directory. If you use `nodemon` it will rerun on each code edit.
+## Running a test bot
+Using `ts-node` to run typescript at the command line from 'server' directory. If you use `nodemon` it will rerun on each code edit.
+
+The `runners` folder contains some bots run with different configs.
 
     ts-node src/runners/SwingRun.ts
 
 you'll get something like this:
 
 ```
-$ nodemon src/runners/SwingRun.ts
-[nodemon] 1.19.1
-[nodemon] to restart at any time, enter `rs`
-[nodemon] watching: *.*
-[nodemon] starting `ts-node src/runners/SwingRun.ts`
+$ NODE_ENV=local ts-node src/runners/SwingRun.ts
+[      DbConn]  |  got dbHandle
 [    SwingRun]  |  priceList.length 767
 [    SwingRun]  |  market.start	 4345.95
 [    SwingRun]  |  market.end	 6687.99
@@ -60,11 +58,15 @@ $ nodemon src/runners/SwingRun.ts
 [    SwingRun]  |  log: swinger.log.csv
 ```
 
-So, obviously not a good trading bot, it lost $131 even though the market went up by nearly $2342 in the same period.
-Well, its just a basic bot without much strategy or signals yet.
-But this simple framework allows more ideas to be tested.
+![Logs](client/static/swing-run.png)
 
-You can see more details of the trading log in a csv file `logs/swinger.log.csv`
+So, obviously not a good trading strategy!
+It lost **$131** even though the market went up by nearly $2342 in the same period.
+
+767 prices ~= 31 days (binance historical data is at hourly intervals)
+
+Well, its just a basic bot without much strategy or signals yet.
+But this simple framework allows other ideas to be tested.
 
 note: at this time the bot just buys 1BTC each tx, no matter what the price.
 
@@ -111,6 +113,7 @@ public calcSwing(miniChart: string): string {
   if (/DD$/.test(miniChart)) sw = 'R-D'
 ```
 
+
 Then later the `U` or `D` triggers a `BUY/SELL` action.
 Of course these rules can overlap and apply based on order. So a `UUDD` SwingDown would also get caught on a `DD` run-down.
 
@@ -122,14 +125,25 @@ The samples run at the same rate as the data being fed in.
 So based on these swings the bot will call an `action`
 
 ## Viewing results
-As the trader sim runs it writes logs to a CSV file
+You can see more details of the trading log in a csv file eg `logs/swinger.log.csv`
 
+As the trader sim runs it writes logs here.
+
+![Logs](client/static/trade-log.png)
+
+(viewing the CSV file with a VScode plugin)
+The date formats are compatible with google docs if you want to import and see graphs.
+
+Columns:
+- diff1 - difference last two prices
+- dir - up/down related to diff1
+- total - current running profit
 
 ## TODO
-- Add more technical analysis types
-- client to visualize trades in graph format
+- more modular strategies
+- Add more technical analysis types (tulip)
+- Client to visualize trades in graph format
+- Profitable bot strategy :D
 
 Please get in touch if you'd like to help out!
-dc@rikai.co
-
-
+dc AT rikai.co
