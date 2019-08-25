@@ -1,4 +1,5 @@
-import {MoodyBot} from "../bots/MoodyBot"
+import DbConn from "../lib/DbConn"
+import { MoodyBot } from "../bots/MoodyBot"
 import DataSource from '../lib/DataSource'
 
 import {
@@ -72,6 +73,10 @@ describe('moody bot', () => {
     })
     expect(bot.state.total).toBeDefined()  // not very good
     console.log('random.total', bot.state.total)
+  })
+
+  afterAll(async() => {
+    await DbConn.close() // for jest
   })
 
 })

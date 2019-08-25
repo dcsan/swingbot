@@ -49,8 +49,8 @@ class PriceModel {
   public static async cleanLoadBinanceDataFile() {
     let fileName = 'binance.1hr.raw.csv'
     let rows: any[] = await DataSource.formatBinanceData(fileName)
-    console.log(rows[0])
-    console.log(rows[1])
+    // console.log(rows[0])
+    // console.log(rows[1])
     const headers = [
       'idx',
       'symbol',

@@ -159,10 +159,11 @@ const DataSource = {
           // FIXME - uses lots of memory, could be a writable stream instead
           // but that is harder to test async
           // results = results.reverse()
-          logger.log('end format stream')
+          // logger.log('end format stream')
           resolve(results)
         })
         // .on('readable', () => {
+        //   DONT call this or it wont be a pass-through stream
         //   logger.green('readable')
         // })
         .on('close', () => {
@@ -170,7 +171,7 @@ const DataSource = {
           // FIXME - uses lots of memory, could be a writable stream instead
           // but that is harder to test async
           // results = results.reverse()
-          logger.green('close format stream')
+          // logger.green('close format stream')
           resolve(results)
         })
 

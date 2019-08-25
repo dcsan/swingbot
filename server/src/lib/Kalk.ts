@@ -33,29 +33,42 @@ class Kalk {
     this.config = config
   }
 
+  public calcDir(lastPrice: number, price: number) {
+
+    // make sure smaller value tests are first
+    let diff = price - lastPrice
+    let cfg = this.config
+    // console.log(lastPrice, price, 'diff:', diff, cfg)
+    if (diff >= (2 * cfg.stepUp)) return 'U'
+    if (diff >= cfg.stepUp) return 'u'
+    if (diff <= (2 * cfg.stepDown)) return 'D'
+    if (diff <= (cfg.stepDown) ) return 'd'
+    return 'F'
+  }
+
   public miniChart( history: number[] ): string {
     let lastPrice: number
     let chart = history.map(price => {
-      if (!lastPrice) {
-        lastPrice = price
-        return '.'
+      let dir
+      if (!lastPrice) { // first loop
+        dir = '.'
+      } else {
+        dir = this.calcDir(lastPrice, price)
       }
-      let dir = '-'
-      if (price === lastPrice) { dir = '-' }
-      if (price < (lastPrice - this.config.stepUp)) { dir = 'D' }
-      if (price > (lastPrice + this.config.stepDown)) { dir = 'U' }
       lastPrice = price
       return dir
     })
     chart.shift() // the first elem is always pointless as it compares with zero
+    // console.log('history', history, chart)
     return chart.join('')
   }
 
   public calcSwing(miniChart: string): string {
     let sw = '-'
-    if (/DDUUU$/.test(miniChart)) sw = 'S-U' // swing up
-    if (/UUU$/.test(miniChart)) sw = 'R-U' // run up
+    if (/DDuU$/.test(miniChart)) sw = 'S-U' // swing up
+    if (/uuu$/.test(miniChart)) sw = 'R-U' // run up
     if (/UUDD$/.test(miniChart)) sw = 'S-D'
+    if (/UFDD$/.test(miniChart)) sw = 'S-D'
     if (/DDD$/.test(miniChart)) sw = 'R-D'
     if (/U--D$/.test(miniChart)) sw = 'S-D'
     // if (/DDD$/.test(miniChart)) sw = 'R-D'

@@ -22,7 +22,7 @@ const DbConn = {
 
   async init() {
     if (dbHandle) {
-      logger.log('return cached dbConn')
+      // logger.log('return cached dbConn')
       return (dbHandle)
     }
     // logger.info('connect mongoUri: ', AppConfig.mongoUri)
@@ -40,7 +40,7 @@ const DbConn = {
           assert.ok(db != null)
           dbClient = db
           dbHandle = dbClient.db(AppConfig.dbName)
-          logger.log('got dbHandle')
+          // logger.log('got dbHandle')
           resolve(dbHandle)
         })
       } catch (err) {

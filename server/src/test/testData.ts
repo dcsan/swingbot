@@ -18,7 +18,7 @@ const swingUp: number[] = [
   100,
   120,
   160
-]
+] // FDDUU
 
 const oneDown: number[] = [
   200,
