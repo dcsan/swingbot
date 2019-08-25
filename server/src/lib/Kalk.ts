@@ -13,11 +13,21 @@ interface IKalk {
   dir: string
 }
 
-const STEP = 1  // needed to trigger change
+interface IKalkConfig {
+  stepUp: number
+  stepDown: number
+}
 
-const Kalk = {
+const DEFAULT_STEP = 10  // needed to trigger change
 
-  miniChart( history: number[] ): string {
+class Kalk {
+  config: IKalkConfig
+
+  constructor(config: IKalkConfig) {
+    this.config = config
+  }
+
+  public miniChart( history: number[] ): string {
     let lastPrice: number
     let chart = history.map(price => {
       if (!lastPrice) {
@@ -26,16 +36,16 @@ const Kalk = {
       }
       let dir = '-'
       if (price === lastPrice) { dir = '-' }
-      if (price < (lastPrice - STEP)) { dir = 'D' }
-      if (price > (lastPrice + STEP)) { dir = 'U' }
+      if (price < (lastPrice - this.config.stepUp)) { dir = 'D' }
+      if (price > (lastPrice + this.config.stepDown)) { dir = 'U' }
       lastPrice = price
       return dir
     })
     chart.shift() // the first elem is always pointless as it compares with zero
     return chart.join('')
-  },
+  }
 
-  swing(miniChart: string): string {
+  public calcSwing(miniChart: string): string {
     let sw = '-'
     if (/DDUU$/.test(miniChart)) sw = 'S-U' // swing up
     if (/UU$/.test(miniChart)) sw = 'R-U' // run up
@@ -44,15 +54,21 @@ const Kalk = {
     // if (/DDD$/.test(miniChart)) sw = 'R-D'
     // if (/DDDD$/.test(miniChart)) sw = 'R-D'
     return sw
-  },
+  }
 
-  calcAll(history: number[]): IKalk {
-    let miniChart = Kalk.miniChart(history)
+  public calcAction(swing: string) {
+    if (/-U$/.test(swing)) return 'BUY'
+    if (/-D$/.test(swing)) return 'SELL'
+    return 'HOLD'
+  }
+
+  public calcAll(history: number[]): IKalk {
+    let miniChart = this.miniChart(history)
     const last1 = history[history.length - 1]
     const last2 = history[history.length - 2]
     const diff1 = last1 - last2
-    const swing = Kalk.swing(miniChart)
-    const action = Kalk.calcAction(swing)
+    const swing = this.calcSwing(miniChart)
+    const action = this.calcAction(swing)
     let result: IKalk = {
       last1,
       last2,
@@ -63,16 +79,11 @@ const Kalk = {
       dir: miniChart[miniChart.length - 1]
     }
     return result
-  },
-
-  calcAction(swing: string) {
-    if (/-U$/.test(swing)) return 'BUY'
-    if (/-D$/.test(swing)) return 'SELL'
-    return 'HOLD'
   }
+
 
 }
 
 export {
-  Kalk, IKalk
+  Kalk, IKalk, IKalkConfig
 }

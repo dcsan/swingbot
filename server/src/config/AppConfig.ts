@@ -28,8 +28,8 @@ const testing = (
 
 
 const AppConfig = {
-  BinApiKey: process.env.BinApiKey,
-  BinApiSecret: process.env.BinApiSecret,
+  BinanceApiKey: process.env.BinanceApiKey,
+  BinanceApiSecret: process.env.BinanceApiSecret,
   appName: appName,
   dbName: appName,
   mongoUri: mongoUri,

@@ -8,11 +8,13 @@ import {
 
 import {
   Kalk,
+  IKalkConfig,
   IKalk
 } from '../lib/Kalk'
 
-interface IBotOpts {
+interface IBotConfig {
   logfile?: string
+  calcConfig: IKalkConfig
 }
 
 interface ITrade {
@@ -50,10 +52,16 @@ class MoodyBot {
     counter: 0
   }
   txLogger: any // streamWriter
+  calco: Kalk
 
-  constructor(opts: IBotOpts = {}) {
-    let logfile = opts.logfile || 'tradeLog.csv'
-    const fp = path.join(__dirname, '../../data', logfile)
+  constructor(config: IBotConfig ) {
+    this.txLogger = this.createLogger(config)
+    this.calco = new Kalk(config.calcConfig)
+  }
+
+  createLogger(config: IBotConfig): any {
+    let logfile = config.logfile || 'tradeLog.csv'
+    const logPath = path.join(__dirname, '../../logs', logfile)
     let options = {
       headers: [
         'counter',
@@ -66,9 +74,9 @@ class MoodyBot {
       ]
     }
     let txLogger = csvWriter(options)
-    let stream = fs.createWriteStream(fp)
+    let stream = fs.createWriteStream(logPath)
     txLogger.pipe(stream)
-    this.txLogger = txLogger
+    return txLogger
   }
 
   tick(ip: IPrice) {
@@ -76,7 +84,7 @@ class MoodyBot {
     this.state.counter++
     this.prices.push(price)
     this.prices = this.prices.slice(- STACK_SIZE)
-    let calc: IKalk = Kalk.calcAll(this.prices)
+    let calc: IKalk = this.calco.calcAll(this.prices)
     let result: IResult
     switch (calc.action) {
       case 'BUY':
@@ -153,7 +161,7 @@ class MoodyBot {
 }
 
 export {
-  IBotOpts,
+  IBotConfig,
   MoodyBot
 }
 

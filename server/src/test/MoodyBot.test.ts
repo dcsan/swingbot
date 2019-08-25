@@ -33,11 +33,23 @@ const priceList = [
 //   IKalk
 // } from '../lib/Kalk'
 
+// shared bot instance
+// lets hope parallel tests dont break it
+let bot: MoodyBot
+
 describe('moody bot', () => {
 
+  beforeAll(() => {
+    bot = new MoodyBot({
+      calcConfig: {
+        stepUp: 1,
+        stepDown: 2
+      }
+    })
+  })
+
   // based on the price data above
-  xtest('simpleTrader', () => {
-    let bot = new MoodyBot()
+  test('simpleTrader', () => {
     priceList.forEach(p => {
       const ip: IPrice = {
         open: p
@@ -46,12 +58,11 @@ describe('moody bot', () => {
       // console.log(state.calc.action)
       // console.log(state.result)
     })
-    expect(bot.state.total).toEqual(-10)  // not very good
+    expect(bot.state.total).toEqual(0)  // not very good
   })
 
   // based on random data
   xtest('randomTrader', () => {
-    let bot = new MoodyBot()
     let priceList = DataSource.generate(200)
     priceList.forEach(p => {
       const ip = {

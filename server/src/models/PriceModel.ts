@@ -9,7 +9,7 @@ import {
   IPrice
 } from '../types/types'
 
-class PriceData {
+class PriceModel {
 
   public static async init() {
     if (coll) return coll
@@ -17,7 +17,7 @@ class PriceData {
   }
 
   public static async removeAll() {
-    await PriceData.init()
+    await PriceModel.init()
     await coll.removeMany({})
   }
 
@@ -26,18 +26,18 @@ class PriceData {
   }
 
   public static async log(row: any) {
-    await PriceData.init()
+    await PriceModel.init()
     coll.insert(row)
   }
 
   public static async reset(rows: any[]) {
-    await PriceData.init()
+    await PriceModel.init()
     await coll.removeMany({})
     await coll.insertMany(rows)
   }
 
   public static async find(finder: any): Promise<IPrice[]> {
-    await PriceData.init()
+    await PriceModel.init()
     let data: IPrice[] = await coll.find(finder).toArray()
     return data
   }
@@ -65,7 +65,7 @@ class PriceData {
       'ts',
     ]
     await DataSource.writeCsvData('binance.1hr.clean.csv', rows, headers)
-    await PriceData.reset(rows)
+    await PriceModel.reset(rows)
     // console.log('rows', rows)
   }
 
@@ -76,4 +76,4 @@ class PriceData {
 //   IPrice
 // }
 
-export default PriceData
+export default PriceModel

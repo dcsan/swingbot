@@ -28,14 +28,16 @@ const oneDown: number[] = [
 
 const seeSaw: number[] = [
   100,
-  101,
+  105,
   99,
   120,
+  121,
+  122,
   80,
-  81,
+  85,
   70,
   100,
-  99
+  95
 ]
 
 const runDown: number[] = [

@@ -27,7 +27,10 @@ const DbConn = {
     }
     logger.info('connect mongoUri: ', AppConfig.mongoUri)
     return new Promise((resolve, reject) => {
-      MongoClient.connect(AppConfig.mongoUri, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(AppConfig.mongoUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      }, (err, db) => {
         if (err) {
           reject (err)
         }

@@ -1,7 +1,8 @@
 import AppConfig from '../config/AppConfig'
 import { MoodyBot } from "../bots/MoodyBot"
 
-import PriceData from '../models/PriceData'
+import PriceModel from '../models/PriceModel'
+
 import {
   IPrice
 } from "../types/types"
@@ -13,17 +14,21 @@ describe('binance run', () => {
   beforeAll(async () => {
     // just do this once as its a long slow task
     // await PriceData.loadBinanceData()
-    await PriceData.init()
+    await PriceModel.init()
     bot = new MoodyBot({
-      logfile: 'trader.test.log.csv'
+      logfile: 'trader.test.log.csv',
+      calcConfig: {
+        stepUp: 10,
+        stepDown: 10
+      }
     })
     // console.log('done beforeAll')
   })
 
   // based on the price data above
   test('simpleTrader', async () => {
-    await PriceData.init()
-    let priceList :IPrice[] = await PriceData.find({
+    await PriceModel.init()
+    let priceList :IPrice[] = await PriceModel.find({
       idx: { $gt: 15000 }
     })
     console.log('pricelist.start', priceList[0].open)

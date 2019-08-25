@@ -22,7 +22,7 @@ class BotLog {
     this.count = 0
     this.logs = {}
     this.logs.textLog = fs.createWriteStream('./data/text.log', { flags: 'a' })
-    this.logs.txLog = fs.createWriteStream('./data/tx.json', { flags: 'a' })
+    this.logs.txLog = fs.createWriteStream('./logs/tx.json', { flags: 'a' })
     this.logs.jsonLog = fs.createWriteStream('./data/json.log', { flags: 'a' })
     this.stringifier = jsonlines.stringify()
     this.stringifier.pipe(this.logs.jsonLog)

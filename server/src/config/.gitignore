@@ -1,0 +1,2 @@
+# dont commit keys to repo
+*.env

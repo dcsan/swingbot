@@ -4,8 +4,8 @@ import AppConfig from "../config/AppConfig"
 
 // Authenticated client, can make signed calls
 const binClient = Binance({
-  apiKey: AppConfig.BinApiKey,
-  apiSecret: AppConfig.BinApiSecret
+  apiKey: AppConfig.BinanceApiKey,
+  apiSecret: AppConfig.BinanceApiSecret
   // getTime: xxx // time generator function, optional, defaults to () => Date.now()
 })
 

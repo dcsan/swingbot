@@ -1,7 +1,7 @@
-import PriceData from '../models/PriceData'
+import PriceModel from '../models/PriceModel'
 
 async function main() {
-  await PriceData.loadBinanceData()
+  await PriceModel.loadBinanceData()
 }
 
 main()
