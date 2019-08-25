@@ -12,8 +12,11 @@ import {
 class PriceModel {
 
   public static async init() {
+    logger.info('PriceModel.init.start')
     if (coll) return coll
     coll = await BaseModel.init('Price')
+    logger.info('PriceModel.init.end')
+    return coll
   }
 
   public static async removeAll() {
@@ -33,10 +36,11 @@ class PriceModel {
   public static async reset(rows: any[]) {
     await PriceModel.init()
     await coll.removeMany({})
+    logger.warn('reset PriceModel with ', rows.length, ' rows of data')
     await coll.insertMany(rows)
   }
 
-  public static async find(finder: any, sorter: any): Promise<IPrice[]> {
+  public static async find(finder: any, sorter: any = {} ): Promise<IPrice[]> {
     await PriceModel.init()
     let data: IPrice[] = await coll.find(finder).sort(sorter).toArray()
     return data
@@ -44,28 +48,32 @@ class PriceModel {
 
 
 // read the Binance Data and load it into mongo
-  public static async loadBinanceData() {
+  public static async cleanLoadBinanceDataFile() {
     let fileName = 'binance.1hr.raw.csv'
     let rows: any[] = await DataSource.formatBinanceData(fileName)
     console.log(rows[0])
     console.log(rows[1])
     const headers = [
       'idx',
-      'Symbol',
+      'symbol',
       'avg',
-      'Date',
-      'Open',
-      'High',
-      'Low',
-      'Close',
-      'date',
+      'open',
+      'high',
+      'low',
+      'close',
+      // 'date',  // ugly formatting
       'time',
       'hour',
       'ampm',
-      'ts',
+      'gdate',
+      'idx',
+      'timestamp',
+      'btc_volume',
+      'usdt_volume'
     ]
     await DataSource.writeCsvData('binance.1hr.clean.csv', rows, headers)
     await PriceModel.reset(rows)
+    return rows
     // console.log('rows', rows)
   }
 

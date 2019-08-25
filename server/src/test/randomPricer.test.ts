@@ -9,6 +9,8 @@ import {
   Kalk
 } from "../lib/Kalk"
 
+const calco = new Kalk()
+
 const BINANCE_DATA = 'Binance_BTCUSDT_1h.csv'
 const STACK_SIZE = 5
 
@@ -30,7 +32,7 @@ xdescribe('price generation', () => {
       let p = DataSource.get()
       prices.push(p)
       prices = prices.slice(-STACK_SIZE)
-      let k = Kalk.calcAll(prices)
+      let k = calco.calcAll(prices)
       console.log(
         k.last1,
         k.diff1,

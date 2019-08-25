@@ -13,39 +13,48 @@ if (!dbName) {
   throw new Error('no dbName is set in process.env')
 }
 
-// let mongoClient: any = null
 let dbHandle: any = null
-// let dbConn: MongoClient = null
+let dbClient: any // some other mongo thing
+
 
 const DbConn = {
   // db: Db,
 
-  async init () {
+  async init() {
     if (dbHandle) {
-      // logger.log('return cached dbConn')
+      logger.log('return cached dbConn')
       return (dbHandle)
     }
     // logger.info('connect mongoUri: ', AppConfig.mongoUri)
     return new Promise((resolve, reject) => {
-      MongoClient.connect(AppConfig.mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      }, (err, db) => {
-        if (err) {
-          reject (err)
-        }
-        assert.equal(null, err)
-        assert.ok(db != null)
-        dbHandle = db.db(AppConfig.dbName)
-        // logger.log('got dbHandle')
-        resolve(dbHandle)
-      })
+      try {
+
+        MongoClient.connect(AppConfig.mongoUri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }, (err, db) => {
+          if (err) {
+            reject(err)
+          }
+          assert.equal(null, err)
+          assert.ok(db != null)
+          dbClient = db
+          dbHandle = dbClient.db(AppConfig.dbName)
+          logger.log('got dbHandle')
+          resolve(dbHandle)
+        })
+      } catch (err) {
+        const msg = 'cannot connect to DB'
+        logger.error(msg)
+        logger.error(err)
+        throw (msg)
+      }
     })
   },
 
   async close() {
     // @ts-ignore
-    await MongoClient.close()
+    await dbClient.close()
   },
 
   // capitalize collection names
@@ -89,14 +98,14 @@ const DbConn = {
         size,
         max
       })
-      logger.info(`${name} converted to capped`)
+      logger.info(`${ name } converted to capped`)
     } else {
       dbRes = await dbHandle.createCollection(name, {
         capped: true,
         size,
         max
       })
-      logger.info(`created capped ${name} collection`)
+      logger.info(`created capped ${ name } collection`)
     }
     logger.info('dbRes', dbRes)
   },
@@ -107,7 +116,8 @@ const DbConn = {
     } catch (e) {
       return false
     }
-  }
+  },
+
 }
 
 export default DbConn

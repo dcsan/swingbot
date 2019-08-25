@@ -1,5 +1,6 @@
 import Logger from '../lib/Logger'
 const logger = new Logger('SwingRun')
+import DbConn from '../lib/DbConn'
 
 // supplies Binance historical data
 // can init using scripts/get-binance-data.sh
@@ -15,7 +16,7 @@ import {
 } from '../bots/MoodyBot'
 
 const config: IBotConfig = {
-  logfile: 'swinger.log',
+  logfile: 'swinger.log.csv',
   calcConfig: {
     stepDown: 5,
     stepUp: 5
@@ -51,7 +52,8 @@ const main = async () => {
   logger.report('market.start\t', priceList[0].open)
   logger.report('market.end\t', priceList[priceList.length - 1].open)
   logger.report('profit.total:\t', bot.state.total)
-
+  logger.report('log:', config.logfile)
+  DbConn.close()  // to exit
 }
 
 main()

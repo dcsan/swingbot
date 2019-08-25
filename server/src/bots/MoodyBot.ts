@@ -1,3 +1,6 @@
+import Logger from '../lib/Logger'
+const logger = new Logger('MoodyBot')
+
 const path = require('path')
 const fs = require('fs')
 var csvWriter = require('csv-write-stream')
@@ -23,6 +26,7 @@ interface ITrade {
   type: string
   out?: number
   profit?: number
+  delta?: number
 }
 
 interface IResult {
@@ -64,16 +68,24 @@ class MoodyBot {
     const logPath = path.join(__dirname, '../../logs', logfile)
     let options = {
       headers: [
-        'counter',
-        'idx',
-        'date',
-        'last1', 'last2', 'diff1', 'dir', 'miniChart', 'swing',
+        'gdate',
+        'last1', 'last2',
+        'diff1',
+        'dir', 'miniChart',
+        'swing',
         'action', 'reason', 'didAction',
         'active', 'in', 'out', 'profit',
-        'total'
+        'delta',   // active trade
+        'total',
+        'counter',
+        'idx',
       ]
     }
-    fs.unlinkSync(logPath)
+    try {
+      fs.unlinkSync(logPath)
+    } catch (err) {
+      logger.warn('no log file existed', logPath)
+    }
     let txLogger = csvWriter(options)
     let stream = fs.createWriteStream(logPath)
     txLogger.pipe(stream)
@@ -94,9 +106,19 @@ class MoodyBot {
       case 'SELL':
         result = this.sell(calc)
         break
-      default:
+      case 'HOLD':
         result = this.hold(calc)
+        break
+      default:
+        result = this.sleep(calc)
     }
+
+    if (this.trade.active) {
+      this.trade.delta = this.trade.in - price
+    } else {
+      this.trade.delta = 0
+    }
+
     this.logTick(calc, result, ip)
     return ({
       calc,
@@ -146,11 +168,27 @@ class MoodyBot {
   }
 
   hold(calc: IKalk): IResult {
-    // console.log('hold.calc', calc)
-    return {
-      didAction: 'HOLD',
-      reason: 'HOLD-CMD'
+    let result
+    if (this.trade.active) {
+       result = {
+         didAction: 'HOLD',
+         reason: 'HOLD-CMD'
+      }
+    } else {
+      result = {
+        didAction: '-',
+        reason: 'HOLD-CMD'
+      }
     }
+    return result
+  }
+
+  sleep(calc: IKalk): IResult {
+    let result: IResult = {
+      didAction: '-',
+      reason: 'SLEEP'
+    }
+    return result
   }
 
   logTick(calc: IKalk, result: IResult, ip: IPrice) {

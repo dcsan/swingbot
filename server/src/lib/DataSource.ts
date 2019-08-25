@@ -1,6 +1,7 @@
 var csvWriter = require('csv-write-stream') // writer
 const csv = require('csv-parser') // reader
 const fs = require('fs')
+const moment = require('moment')
 
 import Logger from '../lib/Logger'
 const logger = new Logger('DataSource')
@@ -82,27 +83,28 @@ const DataSource = {
   // rename some fields
   // format data info
   formatBinanceData(fileName: string, maxLines?: number): Promise<any[]> {
+    logger.log('format', fileName)
+    const makeFloat = (header: string, index: number, value: string) => {
+      // let float = parseFloat(value)
+      // if (isNaN(float)) {
+      //   return value
+      // } else {
+      //   return float
+      // }
+      switch (true) {
+        case (/Date/.test(header)):
+          return value
+        // return new Date(value)
+        case (/Symbol/.test(header)):
+          return value
+        default:
+          return parseFloat(value)
+      }
+    }
+
     const fp = DataSource.dataFilePath(fileName)
     let results: any[] = []
     let p = new Promise((resolve, reject) => {
-
-      const makeFloat = (header: string, index: number, value: string) => {
-        let float = parseFloat(value)
-        if (isNaN(float)) {
-          return value
-        } else {
-          return float
-        }
-        // switch (true) {
-        //   case (/Date/.test(header)):
-        //     return value
-        //   // return new Date(value)
-        //   case (/Symbol/.test(header)):
-        //     return value
-        //   default:
-        //     return parseFloat(value)
-        // }
-      }
 
       let options = {
         // mapValues: () => makeFloat
@@ -115,23 +117,29 @@ const DataSource = {
       fs.createReadStream(fp)
         .pipe(csv(options))
         .on('data', (row: any) => {
-          // console.log('row', row)
+          // logger.log('raw.row', row)
+          // logger.dot('.')
           row.idx = idx++
-          row.when = row.Date
-          row.day = row.Date.split(' ')[0]
-          row.time = row.Date.split(' ')[1]
-          row.hour = row.time.split('-')[0]
-          row.hour = parseInt(row.hour)
-          row.ampm = row.time.split('-')[1]
 
+          // clean up the dates
+          let dateInfo = row.Date // ugly date "2019-08-21 11-PM"
+          let time12 = dateInfo.split(' ')[1] // 11-PM
+          row.day = dateInfo.split(' ')[0]
+          let hour = time12.split('-')[0]
+          row.hour = parseInt(hour, 10)
+          row.ampm = time12.split('-')[1] // PM
           if (row.ampm === 'PM') {
             row.hour += 12
           }
+          let dateObj = new Date(row.day)
+          dateObj.setHours(row.hour)
+          row.timestamp = dateObj.getTime()
+          // row.gdate = dateObj.toLocaleString() // for gdocs
+          row.gdate = moment(dateObj).format('MM/D/YYYY HH:mm:ss')
+          row.date = dateObj
+
           row.btc_volume = row['Volume BTC']
           row.usdt_volume = row['Volume USDT']
-          row.date = new Date(row.day)
-          row.date.setHours(row.hour)
-          row.timestamp = row.date.getTime();
           row.avg = (row.Open + row.Close) / 2.0
 
           let keys = Object.keys(row)
@@ -143,7 +151,7 @@ const DataSource = {
             out[k] = val
           })
 
-          // console.log('data', row)
+          // logger.log('row', row)
           results.push(out)
         })
         .on('end', () => {
@@ -154,15 +162,15 @@ const DataSource = {
           logger.log('end format stream')
           resolve(results)
         })
-        .on('readable', () => {
-          logger.log('readable')
-        })
+        // .on('readable', () => {
+        //   logger.green('readable')
+        // })
         .on('close', () => {
           // console.log(results);
           // FIXME - uses lots of memory, could be a writable stream instead
           // but that is harder to test async
           // results = results.reverse()
-          logger.log('close format stream')
+          logger.green('close format stream')
           resolve(results)
         })
 

@@ -63,12 +63,12 @@ class Logger {
     // suspend output during tests
     text = `${this.where}  |  ${text}`
     fs.appendFileSync(logPath, text + '\n')
-    if (AppConfig.testing || this.silent) {
+    // if (AppConfig.testing || this.silent) {
       // skip log
       // console.log('testing', AppConfig.testing)
-    } else {
-      console.log(wrap(text))
-    }
+    // } else {
+    console.log(wrap(text))
+    // }
   }
 
   public warn(...args: any) {
@@ -87,6 +87,17 @@ class Logger {
     // TODO - send to loggly or other logging service
   }
 
+  // no newline, just to show progress
+  dot(s: string = '.') {
+    process.stdout.write(s)
+  }
+
+  skipLog(mode: string) {
+    process.stdout.write('-')
+    // console.log('skipLog:', mode)
+    // console.log('AppConfig.logMode:', AppConfig.logMode)
+  }
+
   // fatal error
   public abort(...args: any) {
     args = Logger.splatArgs(args)
@@ -100,7 +111,11 @@ class Logger {
   }
 
   public info(...args: any) {
-    if (!/info/.test(AppConfig.logMode)) { return }
+    if (!/info/.test(AppConfig.logMode)) {
+      // console.log("WTF")
+      // this.skipLog('info')
+      return
+    }
     this.output(chalk.white, args)
   }
 

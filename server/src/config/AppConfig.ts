@@ -26,6 +26,7 @@ const testing = (
   process.env.TESTING === 'true'
 )
 
+const logMode = process.env.logMode || 'error|warn|green|fatal|report'
 
 const AppConfig = {
   BinanceApiKey: process.env.BinanceApiKey,
@@ -33,8 +34,14 @@ const AppConfig = {
   appName: appName,
   dbName: appName,
   mongoUri: mongoUri,
-  logMode: process.env.logMode || 'error|warn|green|fatal|report',
-  testing
+  nodeEnv,
+  logMode,
+  testing,
+  init() {
+    console.log('AppConfig,nodeEnv', nodeEnv)
+    console.log('AppConfig,logMode', logMode)
+    console.log('AppConfig,init.done')
+  }
 }
 
 // logger.log('set AppConfig', AppConfig)

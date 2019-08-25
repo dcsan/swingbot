@@ -53,10 +53,11 @@ class Kalk {
 
   public calcSwing(miniChart: string): string {
     let sw = '-'
-    if (/DDUU$/.test(miniChart)) sw = 'S-U' // swing up
-    if (/UU$/.test(miniChart)) sw = 'R-U' // run up
-    if (/UDD$/.test(miniChart)) sw = 'S-D'
-    if (/DD$/.test(miniChart)) sw = 'R-D'
+    if (/DDUUU$/.test(miniChart)) sw = 'S-U' // swing up
+    if (/UUU$/.test(miniChart)) sw = 'R-U' // run up
+    if (/UUDD$/.test(miniChart)) sw = 'S-D'
+    if (/DDD$/.test(miniChart)) sw = 'R-D'
+    if (/U--D$/.test(miniChart)) sw = 'S-D'
     // if (/DDD$/.test(miniChart)) sw = 'R-D'
     // if (/DDDD$/.test(miniChart)) sw = 'R-D'
     return sw
