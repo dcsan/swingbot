@@ -30,8 +30,11 @@ Otherwise just leave the keys out, we can also run against historical downloaded
     npm i
 
 
-## gettting started
+## gettting data to work with
 Get some historial BTC-USD price data
+
+note: there's already some data in the repo, but this will load latest data.
+you'll want to run this script to load it into mongoDB though.
 
     src/scripts/get-binance-data.sh
 
@@ -50,18 +53,20 @@ $ nodemon src/runners/SwingRun.ts
 [nodemon] to restart at any time, enter `rs`
 [nodemon] watching: *.*
 [nodemon] starting `ts-node src/runners/SwingRun.ts`
-NODE_ENV not set. using "local"
 [    SwingRun]  |  priceList.length 767
 [    SwingRun]  |  market.start	 4345.95
 [    SwingRun]  |  market.end	 6687.99
-[    SwingRun]  |  profit.total:	 -969.2699999999977
+[    SwingRun]  |  profit.total:	 -131.3299999999981
+[    SwingRun]  |  log: swinger.log.csv
 ```
 
-So, obviously not a good trading bot, it lost $969 even though the market went up by nearly $2342 in the same period.
+So, obviously not a good trading bot, it lost $131 even though the market went up by nearly $2342 in the same period.
 Well, its just a basic bot without much strategy or signals yet.
 But this simple framework allows more ideas to be tested.
 
 You can see more details of the trading log in a csv file `logs/swinger.log.csv`
+
+note: at this time the bot just buys 1BTC each tx, no matter what the price.
 
 ## Basic how it works:
 The MoodyBot (mood swings geddit?) just trades on basic swings, with no awareness of pressure/resistance/volume or any other technical indicators (coming soon!)
@@ -115,4 +120,16 @@ We also check for some other `DDD` meaning a run going down `R-U`
 The samples run at the same rate as the data being fed in.
 
 So based on these swings the bot will call an `action`
+
+## Viewing results
+As the trader sim runs it writes logs to a CSV file
+
+
+## TODO
+- Add more technical analysis types
+- client to visualize trades in graph format
+
+Please get in touch if you'd like to help out!
+dc@rikai.co
+
 

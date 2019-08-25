@@ -45,7 +45,7 @@ const STACK_SIZE = 5
 class MoodyBot {
   prices: number[] = []
   trade: ITrade = {
-    type: 'OPEN',
+    type: 'START',
     in: 0,
     out: 0,
     active: false,
@@ -159,7 +159,7 @@ class MoodyBot {
     this.trade.profit = this.trade.out - this.trade.in
     this.state.total += this.trade.profit
     this.trade.active = false
-    this.trade.type = 'CLOSED'
+    this.trade.type = 'SELL'
     return {
       didAction: 'SELL',
       reason: 'SELL-CMD',

@@ -12,10 +12,8 @@ import {
 class PriceModel {
 
   public static async init() {
-    logger.info('PriceModel.init.start')
     if (coll) return coll
     coll = await BaseModel.init('Price')
-    logger.info('PriceModel.init.end')
     return coll
   }
 
