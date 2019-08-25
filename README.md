@@ -1,7 +1,7 @@
 # Trader SimBot
 
-Simple crypto trading bot simulator, running against market historical data. Using nodeJS/mongo/typescript
-
+Simple crypto trading bot simulator, running against Bitcoin market historical data.
+You can create change configuration variables, or create your own bot with deeper strategies.
 
 ## requirements
 node, typescript, mongoDB
