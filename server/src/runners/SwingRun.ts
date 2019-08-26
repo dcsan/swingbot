@@ -1,6 +1,7 @@
 import Logger from '../lib/Logger'
 const logger = new Logger('SwingRun')
 import DbConn from '../lib/DbConn'
+import TxLog from '../models/TxLog'
 
 // supplies Binance historical data
 // can init using scripts/get-binance-data.sh
@@ -40,13 +41,17 @@ const priceData = async(): Promise<IPrice[]> => {
 
 const main = async () => {
   await PriceModel.init()
+  await TxLog.init()
+  await TxLog.removeAll()
+
   const bot = new MoodyBot(config)
   let priceList = await priceData()
 
   logger.report('priceList.length', priceList.length)
+  // priceList = priceList.slice(0, 5)
 
-  priceList.forEach( ip => {
-    bot.tick(ip)
+  priceList.forEach( async(ip) => {
+    await bot.tick(ip)
   })
 
   logger.report('market.start\t', priceList[0].open)

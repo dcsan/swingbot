@@ -1,6 +1,8 @@
 import Logger from '../lib/Logger'
 const logger = new Logger('MoodyBot')
 
+import TxLog from '../models/TxLog'
+
 const path = require('path')
 const fs = require('fs')
 var csvWriter = require('csv-write-stream')
@@ -92,7 +94,7 @@ class MoodyBot {
     return txLogger
   }
 
-  tick(ip: IPrice) {
+  async tick(ip: IPrice) {
     let price = ip.open
     this.state.counter++
     this.prices.push(price)
@@ -119,7 +121,7 @@ class MoodyBot {
       this.trade.delta = 0
     }
 
-    this.logTick(calc, result, ip)
+    await this.logTick(calc, result, ip)
     return ({
       calc,
       result,
@@ -191,10 +193,11 @@ class MoodyBot {
     return result
   }
 
-  logTick(calc: IKalk, result: IResult, ip: IPrice) {
+  async logTick(calc: IKalk, result: IResult, ip: IPrice) {
     // console.log('merging', calc, result, this.trade, this.state) // check no collisions
     let obj = Object.assign(ip, calc, this.trade, result, this.state)
-    this.txLogger.write(obj)
+    this.txLogger.write(obj)  // not async
+    await TxLog.log(obj)
   }
 
 }

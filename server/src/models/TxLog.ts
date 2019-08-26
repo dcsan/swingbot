@@ -16,6 +16,7 @@ class TxLog {
   public static async init() {
     if (coll) return coll
     coll = await BaseModel.init('TxLog')
+    return coll
   }
 
   public static coll() {
@@ -34,7 +35,23 @@ class TxLog {
   public static async write(tx: ITX) {
     tx.stamp = Date.now()
     await TxLog.init()
-    await coll.insert(tx)
+    await coll.insertOne(tx)
+  }
+
+  public static check() {
+    if (!coll) {
+      // throw 'tried to write before DB ready'
+      logger.error('no coll')
+    }
+  }
+
+  // log random data
+  // non-blocking
+  public static async log(tx: any) {
+    // logger.log('log', tx)
+    tx.stamp = Date.now()
+    TxLog.check()
+    await coll.insertOne(tx)
   }
 
 }
