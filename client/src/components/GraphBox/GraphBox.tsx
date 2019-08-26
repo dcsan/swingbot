@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios"
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import './GraphBox.css'
+
+// import React, { useEffect, useState } from "react";
+// import axios from "axios"
 import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
@@ -7,15 +12,6 @@ import HighchartsReact from 'highcharts-react-official';
 // namespace for the related Props interface (HighchartsReact.Props). All other
 // interfaces like Options come from the Highcharts module itself.
 
-// const options: Highcharts.Options = {
-//     title: {
-//         text: 'My chart'
-//     },
-//     series: [{
-//         type: 'line',
-//         data: [1, 2, 3]
-//     }]
-// }
 
 // // React supports function components as a simple way to write components that
 // // only contain a render method without any state (the App component in this
@@ -31,29 +27,73 @@ import HighchartsReact from 'highcharts-react-official';
 
 
 
-export default function GraphBox() {
-  const [data, setData] = useState([]);
+// interface ISeriesData {
+//   type: string,
+//   data: number[]
+// }
+
+// interface ITX {
+//   open: number
+//   idx: number
+//   options: Highcharts.Options
+// }
+
+// const seriesData = [{
+//   type: 'line',
+//   data: [1, 2, 3]
+// }]
+
+interface IRunData {
+  chartOptions: Highcharts.Options
+  botRun: IBotRun
+}
+interface IBotRun {
+  title: string
+}
+
+
+function GraphBox() {
+
+  // const [data, setData] = useState(data: {} as IRunData);
+  // const [data, setData] = useState<null | {albums: any}>(null);
+  const [data, setData] = useState({ botRun: {} as IBotRun, chartOptions: {} as Highcharts.Options });
 
   useEffect(() => {
-    axios
-      .get("/tx/last")
-      .then(result => {
-        console.log('result', result)
-        setData( result.data )
-      });
-  }, []);
+    const fetchData = async () => {
+      const result = await axios(
+        '/tx/last',
+      );
+
+      console.log('result.data', result.data)
+      console.log('result.data.botRun', result.data.botRun)
+      console.log('result.data.chartOptions', result.data.chartOptions)
+
+      setData(result.data);
+    };
+    fetchData();
+  }, [] );
+
+  // let seriesData = data.botRun.chartOptions.series[0].data
+
+  if (!data) {
+    return<div>loading...</div>
+  }
 
   return (
     <div>
-      stuff
-        {data.map( (item) => (
-          <li key={item.idx}>
-            {item.open}
-          </li>
-        ))}
 
+      <HighchartsReact
+        highcharts={Highcharts}
+        options={ data.chartOptions }
+        containerProps = {{ className: 'chartContainer' }}
+        // {...props}
+      />
+
+      {/* { seriesData.map( (elem: any) => {
+        return(<div key={elem.idx}>{elem.open}</div>)
+      }) } */}
     </div>
   );
 }
-
+export default GraphBox;
 

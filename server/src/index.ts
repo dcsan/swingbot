@@ -2,6 +2,8 @@ import express from "express";
 import Logger from './lib/Logger'
 const logger = new Logger('index')
 
+import Wrap from "./models/Wrap"
+
 
 import AppConfig from './config/AppConfig'
 // console.log('starting')
@@ -16,6 +18,7 @@ app.get( "/", ( req, res ) => {
 })
 
 const main = async () => {
+  await Wrap.init() // setup models
   let port = AppConfig.port
   logger.log('listening on port', port)
   app.listen({port})

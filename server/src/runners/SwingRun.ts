@@ -32,11 +32,12 @@ const priceData = async(): Promise<IPrice[]> => {
   let finder = {
     date: {
       $gte: new Date("2017-10-01T00:00:00.000Z"),
-      $lte: new Date("2017-11-01T23:00:00.000Z"),
+      $lte: new Date("2017-12-01T23:00:00.000Z"),
     }
   }
-  let sorter = {date: 1}
-  return PriceModel.find(finder, sorter)
+  let sorter = { date: 1 }
+  let limit = 100
+  return PriceModel.find(finder, sorter, limit)
 }
 
 const main = async () => {

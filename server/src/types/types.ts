@@ -12,6 +12,9 @@ export interface IPrice {
   time?: string
   hour?: number
   ampm?: string
+  in?: number
+  out?: number
+  total?: number
   btc_volume?: number
   usdt_volume?: number
   timestamp?: number

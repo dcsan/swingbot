@@ -45,6 +45,11 @@ class TxLog {
     }
   }
 
+  public static async find(finder: any, fields: any, sorter: any) {
+    let data = await coll.find(finder, fields).sort(sorter).toArray()
+    return data
+  }
+
   // log random data
   // non-blocking
   public static async log(tx: any) {

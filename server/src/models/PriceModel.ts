@@ -38,9 +38,14 @@ class PriceModel {
     await coll.insertMany(rows)
   }
 
-  public static async find(finder: any, sorter: any = {} ): Promise<IPrice[]> {
+  public static async find(finder: any, sorter: any = {}, limit?: number ): Promise<IPrice[]> {
     await PriceModel.init()
-    let data: IPrice[] = await coll.find(finder).sort(sorter).toArray()
+    let data: IPrice[]
+    if (limit) {
+      data = await coll.find(finder).sort(sorter).limit(limit).toArray()
+    } else {
+      data = await coll.find(finder).sort(sorter).toArray()
+    }
     return data
   }
 
