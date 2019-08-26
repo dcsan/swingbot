@@ -21,53 +21,103 @@ router.get("/tx/last", async (req, res) => {
   let txList = await TxLog.find(finder, fields, sorter)
   // txList = txList.slice(700, 900)
 
-  let openList = txList.map( (tx: IPrice) => tx.open )
+  let openList = txList.map( (tx: IPrice) => tx.last1 )
   let volumeList = txList.map((tx: IPrice) => tx.btc_volume )
-  let buyList = txList.map((tx: IPrice) => tx.in )
-  let sellList = txList.map((tx: IPrice) => tx.out )
-  let totalList = txList.map((tx: IPrice) => tx.total )
+  let buyList = txList.map((tx: IPrice) => tx.buy )
+  let sellList = txList.map((tx: IPrice) => tx.sell )
+  let profits = txList.map((tx: IPrice) => tx.profit )
+  let positions = txList.map((tx: IPrice) => tx.position )
 
-  let ser1 = {
+  let open = {
     name: 'open',
-    type: 'line',
-    data: openList
+    type: 'spline',
+    data: openList,
+    yAxis: 0
   }
 
-  let ser2 = {
+  let buy = {
+    name: 'buy',
+    type: 'column',
+    data: buyList,
+    yAxis: 0,
+    marker: {
+      lineWidth: 4,
+      fillColor: '#00FF00'  // green
+    }
+  }
+
+  let sell = {
+    name: 'sell',
+    type: 'column',
+    data: sellList,
+    yAxis: 0,
+    marker: {
+      lineWidth: 4,
+      fillColor: '#FF0000'  // red
+    }
+  }
+
+  let profit = {
+    name: 'profit',
+    type: 'line',
+    data: profits,
+    yAxis: 1
+  }
+
+  let volume = {
     name: 'volume',
     type: 'column',
-    data: volumeList
+    data: volumeList,
+    yAxis: 2
   }
 
-  let ser3 = {
-    name: 'buy',
+  let position = {
+    name: 'position',
     type: 'line',
-    data: buyList
+    data: positions,
+    yAxis: 0
   }
 
-  let ser4 = {
-    name: 'sell',
-    type: 'line',
-    data: sellList
-  }
+  let chartData: any[] = [
+    open,
+    buy,
+    sell,
+    profit,
+    volume,
+    position
+  ]
 
-  let ser5 = {
-    name: 'total',
-    type: 'line',
-    data: totalList
-  }
-
-  const chartOptions: any = {
-    title: {
-      text: 'TxList'
+  let chartOptions = {
+    tooltip: {
+      shared: true
     },
-    series: [
-      ser1,
-      ser2,
-      ser3,
-      ser4,
-      ser5
-    ]
+    chart: {
+      zoomType: 'x'
+    },
+    yAxis: [
+      { // Primary yAxis
+        labels: {
+          format: '${value}',
+          // style: {
+          //     color: Highcharts.getOptions().colors[2]
+          // }
+        },
+        title: {
+          text: 'price',
+        },
+        opposite: true
+      }, {
+        // Secondary yAxis
+        title: {
+          text: 'profit'
+        }
+      }, {
+        title: {
+          text: 'volume'
+        }
+      }
+    ],
+    series: chartData
   }
 
   let botRun = {

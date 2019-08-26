@@ -79,6 +79,11 @@ function GraphBox() {
     return<div>loading...</div>
   }
 
+  console.log('render chartOptions', data.chartOptions)
+  const colors = Highcharts.getOptions().colors
+  console.log('colors', colors)
+
+
   return (
     <div>
 

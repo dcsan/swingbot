@@ -2,6 +2,8 @@
 // only open price is required
 export interface IPrice {
   open: number
+  last1?: number
+  last2?: number
   date?: Date
   symbol?: string
   high?: number
@@ -12,13 +14,14 @@ export interface IPrice {
   time?: string
   hour?: number
   ampm?: string
-  in?: number
-  out?: number
-  total?: number
+  buy?: number
+  sell?: number
+  profit?: number
   btc_volume?: number
   usdt_volume?: number
   timestamp?: number
   avg?: number
+  position?: number
 }
 
 
@@ -80,3 +83,12 @@ export interface IBotState {
 }
 
 
+export interface IBotConfig {
+  logfile?: string
+  calcConfig: IKalkConfig
+}
+
+export interface IKalkConfig {
+  stepUp: number
+  stepDown: number
+}

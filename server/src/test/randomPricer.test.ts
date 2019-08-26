@@ -9,7 +9,10 @@ import {
   Kalk
 } from "../lib/Kalk"
 
-const calco = new Kalk()
+const calco = new Kalk({
+  stepUp: 5,
+  stepDown: -5
+})
 
 const BINANCE_DATA = 'Binance_BTCUSDT_1h.csv'
 const STACK_SIZE = 5

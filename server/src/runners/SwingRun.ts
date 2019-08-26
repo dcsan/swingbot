@@ -2,7 +2,7 @@ import Logger from '../lib/Logger'
 const logger = new Logger('SwingRun')
 import DbConn from '../lib/DbConn'
 import TxLog from '../models/TxLog'
-
+import RikMath from '../lib/RikMath'
 // supplies Binance historical data
 // can init using scripts/get-binance-data.sh
 import PriceModel from '../models/PriceModel'
@@ -19,10 +19,11 @@ import {
 const config: IBotConfig = {
   logfile: 'swinger.log.csv',
   calcConfig: {
-    stepDown: 5,
-    stepUp: 5
+    stepUp: 5,
+    stepDown: -5,
   }
 }
+
 
 const priceData = async(): Promise<IPrice[]> => {
   // let priceList :IPrice[] = await PriceModel.find({
@@ -55,10 +56,7 @@ const main = async () => {
     await bot.tick(ip)
   })
 
-  logger.report('market.start\t', priceList[0].open)
-  logger.report('market.end\t', priceList[priceList.length - 1].open)
-  logger.report('profit.total:\t', bot.state.total)
-  logger.report('log:', config.logfile)
+  logger.report('log:', bot.makeReport() )
   DbConn.close()  // to exit
 }
 

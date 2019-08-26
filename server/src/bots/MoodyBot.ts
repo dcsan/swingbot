@@ -1,5 +1,6 @@
 import Logger from '../lib/Logger'
 const logger = new Logger('MoodyBot')
+import RikMath from '../lib/RikMath'
 
 import TxLog from '../models/TxLog'
 
@@ -8,27 +9,40 @@ const fs = require('fs')
 var csvWriter = require('csv-write-stream')
 
 import {
-  IPrice
+  IPrice,
+  IBotConfig,
+  IKalkConfig
 } from '../types/types'
 
 import {
   Kalk,
-  IKalkConfig,
   IKalk
 } from '../lib/Kalk'
 
-interface IBotConfig {
-  logfile?: string
-  calcConfig: IKalkConfig
+interface IRunReport {
+  start?: number
+  end?: number
+  change?: number
+  percent?: number
+  runProfit: number
+  tradeCount?: number
+  min: number
+  max: number
+  range: number
+  ticks?: number
+  logfile: string
 }
 
+
 interface ITrade {
-  in: number
-  active: boolean
-  type: string
-  out?: number
-  profit?: number
+  type?: string
+  active?: boolean
+  buy?: number    // FIXME - dont need buy/sell/price
+  sell?: number
+  price?: number
+  tradeProfit?: number
   delta?: number
+  idx?: number
 }
 
 interface IResult {
@@ -38,49 +52,86 @@ interface IResult {
 }
 
 interface IBotState {
-  counter: number
-  total: number
+  idx: number
+  runProfit: number
+  position?: number  // currently held value
+  delta?: number     // position vs. price
+  price?: number
+  tradeCount: number,
+  tradeLog: ITrade[]
 }
 
-const STACK_SIZE = 5
+const STACK_SIZE = 6
 
 class MoodyBot {
   prices: number[] = []
   trade: ITrade = {
     type: 'START',
-    in: 0,
-    out: 0,
+    buy: 0,
+    sell: 0,
     active: false,
-    profit: 0
+    tradeProfit: 0
   }
   state: IBotState = {
-    total: 0,
-    counter: 0
+    runProfit: 0,
+    idx: 0,
+    tradeCount: 0,
+    tradeLog: [],
+    position: 0
   }
   txLogger: any // streamWriter
   calco: Kalk
+  report: IRunReport
+  config: IBotConfig
 
   constructor(config: IBotConfig ) {
+    // logger.green('IBotConfig=>', config)
+    config.logfile = config.logfile || 'tradeLog.csv'
+    this.config = config
+
     this.txLogger = this.createLogger(config)
     this.calco = new Kalk(config.calcConfig)
+    this.report = {
+      min: 0,
+      max: 0,
+      start: 0,
+      end: 0,
+      runProfit: 0,
+      range: 0,
+      logfile: config.logfile
+    }
+  }
+
+  public async init() {
+    await TxLog.init()
+    await TxLog.removeAll()
   }
 
   createLogger(config: IBotConfig): any {
-    let logfile = config.logfile || 'tradeLog.csv'
-    const logPath = path.join(__dirname, '../../logs', logfile)
+    const logPath = path.join(__dirname, '../../logs', config.logfile)
     let options = {
       headers: [
+        'idx',
         'gdate',
+        'open',
         'last1', 'last2',
         'diff1',
         'dir', 'miniChart',
         'swing',
-        'action', 'reason', 'didAction',
-        'active', 'in', 'out', 'profit',
+        'action',
+        'didAction',
+        'reason',
+        'tradeCount',
+        'active',
+        'last1',
+        'position',
         'delta',   // active trade
-        'total',
-        'counter',
-        'idx',
+
+        'buy',
+        'sell',
+        'tradeProfit',
+        'runProfit',
+
       ]
     }
     try {
@@ -94,12 +145,27 @@ class MoodyBot {
     return txLogger
   }
 
+  updateReport(price: number) {
+    if (this.state.idx === 0) {
+      this.report.start = price
+    }
+    this.report.end = price   // even if its just one tick
+    if (price < this.report.min) this.report.min = price
+    if (price > this.report.max) this.report.max = price
+  }
+
   async tick(ip: IPrice) {
-    let price = ip.open
-    this.state.counter++
+    let price = ip.open ||  0  // NOTE - using price.open as the marker
+    this.updateReport(price)
+    this.state.idx++
     this.prices.push(price)
     this.prices = this.prices.slice(- STACK_SIZE)
     let calc: IKalk = this.calco.calcAll(this.prices)
+    if (this.state.position) {
+      this.state.delta = calc.last1 - this.state.position!
+    } else {
+      this.state.delta = 0  // no delta if no position
+    }
     let result: IResult
     switch (calc.action) {
       case 'BUY':
@@ -108,17 +174,11 @@ class MoodyBot {
       case 'SELL':
         result = this.sell(calc)
         break
-      case 'HOLD':
-        result = this.hold(calc)
-        break
+      // case 'HOLD':
+      //   result = this.hold(calc)
+      //   break
       default:
         result = this.sleep(calc)
-    }
-
-    if (this.trade.active) {
-      this.trade.delta = this.trade.in - price
-    } else {
-      this.trade.delta = 0
     }
 
     await this.logTick(calc, result, ip)
@@ -129,19 +189,26 @@ class MoodyBot {
   }
 
   buy(calc: IKalk): IResult {
-    if (this.trade.active) {
+    if (this.state.position) {
       let result: IResult = {
-        didAction: 'HOLD',
+        didAction: '-',
         reason: 'BUY-AH'
       }
+      this.trade = {} // FIXME code smell
       return result
     }
     // else buy
-    this.trade = {
+    const trade: ITrade = {
       type: 'BUY',
-      in: calc.last1,
-      active: true
+      buy: calc.last1,
+      price: calc.last1,
+      active: true,
+      idx: this.state.idx
     }
+    this.state.position = calc.last1
+    this.state.tradeCount++
+    this.logTrade(trade)
+    this.trade = trade
     return {
       didAction: 'BUY',
       reason: 'BUY-CMD',
@@ -150,18 +217,37 @@ class MoodyBot {
   }
 
   sell(calc: IKalk): IResult {
-    if (!this.trade.active) {
+    if (!this.state.position) {
       let result: IResult = {
-        didAction: 'NONE',
+        didAction: '-',
         reason: 'SELL-NH'
       }
+      this.trade = {} // FIXME cleanup holding state
       return result
     } // else sell
-    this.trade.out = calc.last1
-    this.trade.profit = this.trade.out - this.trade.in
-    this.state.total += this.trade.profit
-    this.trade.active = false
-    this.trade.type = 'SELL'
+
+    let tradeProfit = calc.last1 - this.state.position
+    this.state.runProfit += tradeProfit
+    logger.log('tradeProfit', tradeProfit)
+    logger.log('position', this.state.position)
+    logger.log('calc', calc)
+
+    let trade: ITrade = {
+      type: 'SELL',
+      sell: calc.last1,
+      idx: this.state.idx,
+      price: calc.last1,
+      tradeProfit,
+      active: false,
+    }
+
+    // log before liquidate
+    this.logTrade(this.trade)
+    this.trade = trade  // FIXME - code smell
+
+    // liquidate
+    this.state.position = 0
+    this.state.tradeCount++
     return {
       didAction: 'SELL',
       reason: 'SELL-CMD',
@@ -169,23 +255,25 @@ class MoodyBot {
     }
   }
 
-  hold(calc: IKalk): IResult {
-    let result
-    if (this.trade.active) {
-       result = {
-         didAction: 'HOLD',
-         reason: 'HOLD-CMD'
-      }
-    } else {
-      result = {
-        didAction: '-',
-        reason: 'HOLD-CMD'
-      }
-    }
-    return result
-  }
+  // hold(calc: IKalk): IResult {
+  //   let result
+  //   this.trade = {}
+  //   if (this.state.position) {
+  //      result = {
+  //        didAction: 'HOLD',
+  //        reason: 'HOLD-CMD'
+  //     }
+  //   } else {
+  //     result = {
+  //       didAction: '-',
+  //       reason: 'HOLD-CMD'
+  //     }
+  //   }
+  //   return result
+  // }
 
   sleep(calc: IKalk): IResult {
+    this.trade = {}
     let result: IResult = {
       didAction: '-',
       reason: 'SLEEP'
@@ -193,11 +281,28 @@ class MoodyBot {
     return result
   }
 
+  logTrade(trade: ITrade) {
+    this.state.tradeLog.push(trade)
+  }
+
   async logTick(calc: IKalk, result: IResult, ip: IPrice) {
     // console.log('merging', calc, result, this.trade, this.state) // check no collisions
     let obj = Object.assign(ip, calc, this.trade, result, this.state)
     this.txLogger.write(obj)  // not async
     await TxLog.log(obj)
+  }
+
+  makeReport(): IRunReport {
+    let report:IRunReport = this.report
+    report.runProfit = this.state.runProfit
+    report.tradeCount = this.state.tradeCount
+    report.change = report.end! - report.start!
+    report.percent = RikMath.pct(report.change / report.start!)
+    report.range = (report.max - report.min)
+    report.ticks = this.state.idx
+    report.logfile = this.config.logfile!
+    this.report = report
+    return report
   }
 
 }

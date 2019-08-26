@@ -25,6 +25,7 @@ describe('binance run', () => {
         stepDown: 10
       }
     })
+    await bot.init()
     // console.log('done beforeAll')
   })
 
@@ -41,7 +42,8 @@ describe('binance run', () => {
       bot.tick(ip)
     })
     // console.log('total', bot.state.total)
-    expect(bot.state.total).toEqual(-1757.38)  // varies with data
+    expect(bot.state.tradeCount).toEqual(5)  // varies with data
+    expect(bot.state.profit).toEqual(5067.20)  // varies with data
   })
 
   afterAll(async() => {

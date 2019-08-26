@@ -73,7 +73,7 @@ describe('calculate swings', () => {
   })
   test('swingUp.chart', () => {
     let miniChart = calco.miniChart(priceData.swingUp)
-    console.log(priceData.swingUp)
+    // console.log(priceData.swingUp)
     expect(miniChart).toBe('FDDUU');
   })
 

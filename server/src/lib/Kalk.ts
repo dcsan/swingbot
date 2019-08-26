@@ -1,4 +1,8 @@
+import Logger from '../lib/Logger'
+const logger = new Logger('Kalk')
+
 import {
+  IKalkConfig,
   ISnap,
   IPrice
 } from "../types/types"
@@ -13,14 +17,9 @@ interface IKalk {
   dir: string
 }
 
-interface IKalkConfig {
-  stepUp: number
-  stepDown: number
-}
-
 const defaultConfig: IKalkConfig = {
   stepUp: 5,
-  stepDown: 10
+  stepDown: -5
 }
 
 
@@ -29,8 +28,17 @@ const DEFAULT_STEP = 10  // needed to trigger change
 class Kalk {
   config: IKalkConfig
 
-  constructor(config: IKalkConfig = defaultConfig) {
-    this.config = config
+  constructor(config?: IKalkConfig) {
+    // logger.log('config=>', config)
+    if (!config) {
+      logger.warn('no config got:', config)
+      this.config = defaultConfig
+    } else {
+      this.config = config
+    }
+    if (this.config.stepDown >= 0) {
+      logger.error('got a POSITIVE stepDown. that should be negative!')
+    }
   }
 
   public calcDir(lastPrice: number, price: number) {
@@ -66,11 +74,14 @@ class Kalk {
   public calcSwing(miniChart: string): string {
     let sw = '-'
     if (/DDuU$/i.test(miniChart)) sw = 'S-U' // swing up
-    if (/uu$/.test(miniChart)) sw = 'R-U' // run up
+    if (/UU$/i.test(miniChart)) sw = 'R-U' // run up
+    if (/uuu$/.test(miniChart)) sw = 'R-U' // run up
     if (/UUDD$/.test(miniChart)) sw = 'S-D'
+    if (/uudd$/i.test(miniChart)) sw = 'S-D'  // catch all swings
+    if (/u.dd$/i.test(miniChart)) sw = 'S-D'  // catch any going down . char
     if (/UFDD$/.test(miniChart)) sw = 'S-D'
-    if (/DDD$/.test(miniChart)) sw = 'R-D'
-    if (/U--D$/.test(miniChart)) sw = 'S-D'
+    if (/U-D$/.test(miniChart)) sw = 'S-D'
+    if (/DDD$/i.test(miniChart)) sw = 'R-D'
     // if (/DDD$/.test(miniChart)) sw = 'R-D'
     // if (/DDDD$/.test(miniChart)) sw = 'R-D'
     return sw
@@ -79,7 +90,7 @@ class Kalk {
   public calcAction(swing: string) {
     if (/-U$/.test(swing)) return 'BUY'
     if (/-D$/.test(swing)) return 'SELL'
-    return 'HOLD'
+    return '-'
   }
 
   public calcAll(history: number[]): IKalk {

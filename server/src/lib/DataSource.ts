@@ -14,7 +14,10 @@ import {
   Kalk
 } from './Kalk'
 
-const calco = new Kalk()
+const calco = new Kalk({
+  stepUp: 5,
+  stepDown: -5
+})
 
 const DataSource = {
 
