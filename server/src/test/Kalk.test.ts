@@ -1,4 +1,6 @@
-import { priceData } from './testData'
+import {
+  testData
+} from './testData'
 
 import {
   Kalk,
@@ -19,12 +21,12 @@ const testDirectionData = [
 ]
 
 
-xdescribe('calculate directions', () => {
+describe('calculate directions', () => {
 
   beforeAll(() => {
     calco = new Kalk({
-      stepUp: 5,
-      stepDown: -5
+      stepUp: 10,
+      stepDown: -10
     })
   })
 
@@ -57,8 +59,18 @@ xdescribe('calculate directions', () => {
   })
 
   test('dir.up.fast', () => {
-    let dir = calco.calcDir(5, 20)
+    let dir = calco.calcDir(5, 15)
     expect(dir).toBe('U')
+  })
+
+  test('dir.jump.up', () => {
+    let dir = calco.calcDir(5, 50)
+    expect(dir).toBe('J')
+  })
+
+  test('dir.crash.down', () => {
+    let dir = calco.calcDir(50, 5)
+    expect(dir).toBe('K')
   })
 
 })
@@ -67,41 +79,50 @@ describe('calculate swings', () => {
 
   beforeAll(() => {
     calco = new Kalk({
-      stepUp: 5,
-      stepDown: -5
+      stepUp: 10,
+      stepDown: -10
     })
   })
   test('swingUp.chart', () => {
-    let miniChart = calco.miniChart(priceData.swingUp)
-    // console.log(priceData.swingUp)
-    expect(miniChart).toBe('FDDUU');
+    let miniChart = calco.miniChart(testData.swingUp)
+    // console.log(testData.swingUp)
+    expect(miniChart).toBe('FDKJJ');
   })
 
-  test('swingDown.chart', () => {
-    let miniChart = calco.miniChart(priceData.swingDown)
-    expect(miniChart).toBe('UFDD');
+  test('swingDown', () => {
+    let res = calco.calcAll([100, 120, 130, 120, 100])
+    expect(res.miniChart).toBe('UudD');
+    expect(res.swing).toBe('S-D')
+    expect(res.action).toBe('SELL')
+  })
+
+  test('down.Krash', () => {
+    let res = calco.calcAll([100, 120, 100, 110, 80])
+    expect(res.miniChart).toBe('UDuK');
+    expect(res.swing).toBe('K-D')
+    expect(res.action).toBe('SELL')
   })
 
   test('oneDown', () => {
-    let miniChart = calco.miniChart(priceData.oneDown)
+    let miniChart = calco.miniChart([100,80, 60])
     expect(miniChart).toBe('DD');
   })
 
   test('seeSaw', () => {
-    let miniChart = calco.miniChart(priceData.seeSaw)
-    expect(miniChart).toBe('udUFFDuDUd');
+    let miniChart = calco.miniChart(testData.seeSaw)
+    expect(miniChart).toBe('FFUFFKFdJF');
   })
 
   test('swingUp.calc', () => {
-    let calc: IKalk = calco.calcAll(priceData.swingUp)
-    expect(calc.dir).toBe('U');
+    let calc: IKalk = calco.calcAll(testData.swingUp)
+    expect(calc.dir).toBe('J');
     // expect(calc.swing).toBe('S-U');
   })
 
   test('swingDown.calc', () => {
-    let calc: IKalk = calco.calcAll(priceData.swingDown)
+    let calc: IKalk = calco.calcAll([120, 130, 140, 130, 110])
     expect(calc.dir).toBe('D');
-    expect(calc.miniChart).toBe('UFDD');
+    expect(calc.miniChart).toBe('uudD');
     expect(calc.swing).toBe('S-D');
     // expect(calc.swing).toBe('R-D');
   })
@@ -110,7 +131,7 @@ describe('calculate swings', () => {
     let prices = [100, 200, 180, 160, 140, 120 ]
     let calc: IKalk = calco.calcAll(prices)
     expect(calc.dir).toBe('D');
-    expect(calc.miniChart).toBe('UDDDD');
+    expect(calc.miniChart).toBe('JDDDD');
     expect(calc.swing).toBe('R-D');
   })
 

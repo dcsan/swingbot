@@ -5,44 +5,14 @@ import DbConn from "../lib/DbConn"
 import { MoodyBot } from "../bots/MoodyBot"
 import DataSource from '../lib/DataSource'
 
+import { testData } from './testData'
+
 import {
   IPrice,
   IBotConfig,
   IKalkConfig
 } from "../types/types"
 
-const priceList = [
-  10000,
-  10000,
-  10000,
-  10000,
-  10000,  // warm up
-  10010,
-  10021,  // buy
-  10030,
-  10040,
-  10050,
-  10060,
-  10040,
-  10030,  // sell
-  10025,
-  10020,
-  10025,
-  10030,  // buy
-  10040,
-  10080,
-  10070,
-  10065,  //
-  10060,
-  10055,
-  10080,
-  10090,
-  10080,
-  10071,
-  10060,
-  10020,
-  10000,
-]
 
 const calcConfig: IKalkConfig = {
   stepUp: 5,
@@ -72,7 +42,7 @@ describe('moody bot', () => {
 
   // based on the price data above
   test('simpleTrader', () => {
-    priceList.forEach(p => {
+    testData.priceRun.forEach(p => {
       const ip: IPrice = {
         open: p
       }
@@ -80,15 +50,15 @@ describe('moody bot', () => {
       // console.log(state.calc.action)
       // console.log(state.result)
     })
-    logger.log('report', bot.makeReport() )
+    logger.info('report', bot.makeReport() )
     expect(bot.state.tradeCount).toEqual(6)  // not very good
-    expect(bot.state.runProfit).toEqual(25)  // not very good
+    expect(bot.state.runProfit).toEqual(34)  // not very good
   })
 
   // based on random data
   xtest('randomTrader', () => {
-    let priceList = DataSource.generate(200)
-    priceList.forEach(p => {
+    let priceRun = DataSource.generate(200)
+    priceRun.forEach(p => {
       const ip = {
         open: p
       }

@@ -1,4 +1,5 @@
 import moment = require('moment')
+import RikMath from '../lib/RikMath'
 
 describe('moody bot', () => {
 
@@ -13,6 +14,16 @@ describe('moody bot', () => {
     let dateObj = new Date('2019-01-26 18:30:59')
     let gdate: string = moment(dateObj).format('MM/D/YYYY HH:mm:ss')
     expect(gdate).toMatch('01/26/2019 18:30:59')
+  })
+
+  test('check fixed', () => {
+    let num1 = RikMath.fixed(10.1234567, 1)
+    let num2 = RikMath.fixed(10.1234567, 2)
+    let num3 = RikMath.fixed(10.1234567, 3)
+    // console.log(num1, num2, num3)
+    expect(num1).toBeCloseTo(10.1)
+    expect(num2).toBeCloseTo(10.12)
+    expect(num3).toBeCloseTo(10.123)
   })
 
 })

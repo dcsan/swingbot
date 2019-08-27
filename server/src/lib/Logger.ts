@@ -124,9 +124,14 @@ class Logger {
     this.output(chalk.grey, args)
   }
 
+  public silly(...args: any) {
+    if (!/silly/.test(AppConfig.logMode)) { return }
+    this.output(chalk.grey, args)
+  }
+
   public report(...args: any) {
     if (!/report/.test(AppConfig.logMode)) { return }
-    this.output(chalk.black.bgGreen, args)
+    this.output(chalk.white, args)
   }
 
   public green(...args: any) {

@@ -1,3 +1,4 @@
+import RikMath from '../lib/RikMath'
 import Logger from '../lib/Logger'
 const logger = new Logger('Kalk')
 
@@ -47,10 +48,12 @@ class Kalk {
     let diff = price - lastPrice
     let cfg = this.config
     // console.log(lastPrice, price, 'diff:', diff, cfg)
+    if (diff <= (3 * cfg.stepDown)) return 'K'  // krash
+    if (diff >= (3 * cfg.stepUp)) return 'J'  // jump
     if (diff >= (2 * cfg.stepUp)) return 'U'
-    if (diff >= cfg.stepUp) return 'u'
     if (diff <= (2 * cfg.stepDown)) return 'D'
-    if (diff <= (cfg.stepDown) ) return 'd'
+    if (diff >= cfg.stepUp) return 'u'
+    if (diff <= cfg.stepDown ) return 'd'
     return 'F'
   }
 
@@ -82,6 +85,8 @@ class Kalk {
     if (/UFDD$/.test(miniChart)) sw = 'S-D'
     if (/U-D$/.test(miniChart)) sw = 'S-D'
     if (/DDD$/i.test(miniChart)) sw = 'R-D'
+    if (/K$/i.test(miniChart)) sw = 'K-D' // krash down (stop-loss!)
+    if (/J$/i.test(miniChart)) sw = 'J-U' // jump up (grab it!)
     // if (/DDD$/.test(miniChart)) sw = 'R-D'
     // if (/DDDD$/.test(miniChart)) sw = 'R-D'
     return sw
@@ -95,9 +100,9 @@ class Kalk {
 
   public calcAll(history: number[]): IKalk {
     let miniChart = this.miniChart(history)
-    const last1 = history[history.length - 1]
-    const last2 = history[history.length - 2]
-    const diff1 = last1 - last2
+    const last1 = RikMath.fixed(history[history.length - 1])
+    const last2 = RikMath.fixed(history[history.length - 2])
+    const diff1 = RikMath.fixed(last1 - last2)
     const swing = this.calcSwing(miniChart)
     const action = this.calcAction(swing)
     let result: IKalk = {

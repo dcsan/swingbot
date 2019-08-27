@@ -4,8 +4,11 @@ const RikMath = {
   },
 
   // because JS .toFixed() returns a string DOH
+  // round a number to XX decimal places
   fixed(val: number, places: number = 2): number {
-    return Math.round( val * 10 ^ places ) / 10 ^ places;
+    let mul = Math.pow(10, places) // eg 2 = 100
+    let round = Math.round(val * mul);
+    return (round / mul)
   }
 
 }

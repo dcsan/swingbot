@@ -20,15 +20,15 @@ import {
 } from '../lib/Kalk'
 
 interface IRunReport {
-  start?: number
-  end?: number
-  change?: number
-  percent?: number
+  marketStart?: number
+  marketEnd?: number
+  marketDeltaVal?: number
+  marketDeltaPct?: number
+  marketMin: number
+  marketMax: number
+  marketRange: number
   runProfit: number
   tradeCount?: number
-  min: number
-  max: number
-  range: number
   ticks?: number
   logfile: string
 }
@@ -39,7 +39,7 @@ interface ITrade {
   active?: boolean
   buy?: number    // FIXME - dont need buy/sell/price
   sell?: number
-  price?: number
+  tradePrice?: number
   tradeProfit?: number
   delta?: number
   idx?: number
@@ -92,12 +92,12 @@ class MoodyBot {
     this.txLogger = this.createLogger(config)
     this.calco = new Kalk(config.calcConfig)
     this.report = {
-      min: 0,
-      max: 0,
-      start: 0,
-      end: 0,
+      marketMin: 1e10,  // start with a huge number to go down from
+      marketMax: 0,
+      marketStart: 0,
+      marketEnd: 0,
       runProfit: 0,
-      range: 0,
+      marketRange: 0,
       logfile: config.logfile
     }
   }
@@ -126,7 +126,7 @@ class MoodyBot {
         'last1',
         'position',
         'delta',   // active trade
-
+        'tradePrice',
         'buy',
         'sell',
         'tradeProfit',
@@ -147,15 +147,16 @@ class MoodyBot {
 
   updateReport(price: number) {
     if (this.state.idx === 0) {
-      this.report.start = price
+      this.report.marketStart = price
     }
-    this.report.end = price   // even if its just one tick
-    if (price < this.report.min) this.report.min = price
-    if (price > this.report.max) this.report.max = price
+    this.report.marketEnd = price   // even if its just one tick
+    if (price < this.report.marketMin) this.report.marketMin = price
+    if (price > this.report.marketMax) this.report.marketMax = price
   }
 
   async tick(ip: IPrice) {
-    let price = ip.open ||  0  // NOTE - using price.open as the marker
+    let price = ip.open || 0  // NOTE - using price.open as the marker
+    price = RikMath.fixed(price, 3)
     this.updateReport(price)
     this.state.idx++
     this.prices.push(price)
@@ -201,7 +202,7 @@ class MoodyBot {
     const trade: ITrade = {
       type: 'BUY',
       buy: calc.last1,
-      price: calc.last1,
+      tradePrice: calc.last1,
       active: true,
       idx: this.state.idx
     }
@@ -228,15 +229,15 @@ class MoodyBot {
 
     let tradeProfit = calc.last1 - this.state.position
     this.state.runProfit += tradeProfit
-    logger.log('tradeProfit', tradeProfit)
-    logger.log('position', this.state.position)
-    logger.log('calc', calc)
+    logger.silly('tradeProfit', tradeProfit)
+    logger.silly('position', this.state.position)
+    logger.silly('calc', calc)
 
     let trade: ITrade = {
       type: 'SELL',
       sell: calc.last1,
       idx: this.state.idx,
-      price: calc.last1,
+      tradePrice: calc.last1,
       tradeProfit,
       active: false,
     }
@@ -294,11 +295,11 @@ class MoodyBot {
 
   makeReport(): IRunReport {
     let report:IRunReport = this.report
-    report.runProfit = this.state.runProfit
+    report.runProfit = RikMath.fixed(this.state.runProfit)
     report.tradeCount = this.state.tradeCount
-    report.change = report.end! - report.start!
-    report.percent = RikMath.pct(report.change / report.start!)
-    report.range = (report.max - report.min)
+    report.marketDeltaVal = RikMath.fixed(report.marketEnd! - report.marketStart!)
+    report.marketDeltaPct = RikMath.pct(report.marketDeltaVal / report.marketStart!)
+    report.marketRange = (report.marketMax - report.marketMin)
     report.ticks = this.state.idx
     report.logfile = this.config.logfile!
     this.report = report

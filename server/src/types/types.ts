@@ -1,5 +1,7 @@
 
 // only open price is required
+
+// TODO - merge / cleanup vs. ITX
 export interface IPrice {
   open: number
   last1?: number
@@ -22,6 +24,8 @@ export interface IPrice {
   timestamp?: number
   avg?: number
   position?: number
+  delta?: number
+  tradePrice?: number
 }
 
 

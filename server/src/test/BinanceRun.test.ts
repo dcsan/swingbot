@@ -9,20 +9,20 @@ import {
   IPrice
 } from "../types/types"
 
-let bot: any
+let bot: MoodyBot
 
 describe('binance run', () => {
 
   beforeAll(async () => {
     // just do this once on setup system as its a long slow task
     // await PriceData.loadBinanceData()
-
+    jest.setTimeout(10000)
     await PriceModel.init()
     bot = new MoodyBot({
       logfile: 'trader.test.log.csv',
       calcConfig: {
         stepUp: 10,
-        stepDown: 10
+        stepDown: -10
       }
     })
     await bot.init()
@@ -34,16 +34,22 @@ describe('binance run', () => {
   test('simpleTrader', async () => {
     await PriceModel.init()
     let priceList :IPrice[] = await PriceModel.find({
-      idx: { $gt: 15000 }
+      // idx: { $gt: 15000 }
+      date: {
+        $gte: new Date("2018-10-01T00:00:00.000Z"),
+        $lte: new Date("2018-10-30T00:00:00.000Z"),
+      }
     })
     // logger.log('pricelist.start', priceList[0].open)
     // logger.log('pricelist.end', priceList[priceList.length - 1].open)
-    priceList.forEach( ip => {
-      bot.tick(ip)
-    })
+    for (let ip of priceList) {
+      await bot.tick(ip)
+    }
     // console.log('total', bot.state.total)
-    expect(bot.state.tradeCount).toEqual(5)  // varies with data
-    expect(bot.state.profit).toEqual(5067.20)  // varies with data
+    console.log(bot.makeReport())
+    // console.log('state', bot.state)
+    expect(bot.state.tradeCount).toEqual(29)  // varies with data
+    expect(Math.round(bot.state.runProfit)).toBeCloseTo(260)  // varies with data
   })
 
   afterAll(async() => {

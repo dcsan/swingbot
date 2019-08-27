@@ -24,8 +24,7 @@ const config: IBotConfig = {
   }
 }
 
-
-const priceData = async(): Promise<IPrice[]> => {
+const binPriceData = async(): Promise<IPrice[]> => {
   // let priceList :IPrice[] = await PriceModel.find({
   //   idx: { $gt: 15000 }
   // })
@@ -47,7 +46,7 @@ const main = async () => {
   await TxLog.removeAll()
 
   const bot = new MoodyBot(config)
-  let priceList = await priceData()
+  let priceList = await binPriceData()
 
   logger.report('priceList.length', priceList.length)
   // priceList = priceList.slice(0, 5)
