@@ -16,12 +16,24 @@ import {
   IBotConfig
 } from '../bots/MoodyBot'
 
-const config: IBotConfig = {
+const botConfig: IBotConfig = {
   logfile: 'swinger.log.csv',
   calcConfig: {
-    stepUp: 5,
+    stepUp: 20,
     stepDown: -5,
+  },
+  tradeCount: 500
+}
+
+const runConfig = {
+  botConfig,
+  finder: {
+    date: {
+      $gte: new Date("2017-10-01T00:00:00.000Z"),
+      $lte: new Date("2018-12-01T23:00:00.000Z"),
+    }
   }
+
 }
 
 const binPriceData = async(): Promise<IPrice[]> => {
@@ -29,15 +41,9 @@ const binPriceData = async(): Promise<IPrice[]> => {
   //   idx: { $gt: 15000 }
   // })
 
-  let finder = {
-    date: {
-      $gte: new Date("2017-10-01T00:00:00.000Z"),
-      $lte: new Date("2017-12-01T23:00:00.000Z"),
-    }
-  }
   let sorter = { date: 1 }
-  let limit = 100
-  return PriceModel.find(finder, sorter, limit)
+  let limit = runConfig.botConfig.tradeCount
+  return PriceModel.find(runConfig.finder, sorter, limit)
 }
 
 const main = async () => {
@@ -45,7 +51,7 @@ const main = async () => {
   await TxLog.init()
   await TxLog.removeAll()
 
-  const bot = new MoodyBot(config)
+  const bot = new MoodyBot(runConfig.botConfig)
   let priceList = await binPriceData()
 
   logger.report('priceList.length', priceList.length)

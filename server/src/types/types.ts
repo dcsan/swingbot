@@ -90,7 +90,8 @@ export interface IBotState {
 
 export interface IBotConfig {
   logfile?: string
-  calcConfig: IKalkConfig
+  calcConfig: IKalkConfig,
+  tradeCount: number    // limit to 1st N trades
 }
 
 export interface IKalkConfig {
