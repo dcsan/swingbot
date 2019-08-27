@@ -5,7 +5,7 @@ let count = 0
 
 const checkIt = async () => {
   let res = await publicClient.getProducts()
-  let btc = res.filter(elem => elem.id === "BTC-USD")
+  let btc = res.filter( (elem: any) => elem.id === "BTC-USD")
   count++
   console.log('count:', count, btc, '\n\n')
 }

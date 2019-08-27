@@ -28,7 +28,9 @@ router.get("/tx/last", async (req, res) => {
   let profits = txList.map((tx: IPrice) => tx.profit )
   let positions = txList.map((tx: IPrice) => tx.position ? tx.position : undefined )
   let deltas = txList.map((tx: IPrice) => tx.delta ? tx.delta : undefined )
-  let tradePrices = txList.map((tx: IPrice) => tx.tradePrice ? tx.tradePrice : undefined )
+  let tradeProfits = txList.map((tx: IPrice) => tx.tradeProfit ? tx.tradeProfit : undefined )
+
+  let bigMarker = 10
 
   let open = {
     name: 'open',
@@ -42,9 +44,13 @@ router.get("/tx/last", async (req, res) => {
     type: 'line',
     data: buyList,
     yAxis: 0,
+    lineWidth: 1,
+    lineColor: '#00FF00',
     marker: {
+      enabled: true,
       symbol: 'triangle',
-      width: 5,
+      // width: bigMarker,
+      radius: bigMarker,
       lineColor: '#00FF00',
       fillColor: '#00FF00'  // green
     }
@@ -56,12 +62,16 @@ router.get("/tx/last", async (req, res) => {
     data: sellList,
     yAxis: 0,
     color: '#FF0000',
+    lineWidth: 1,
+    lineColor: '#FF0000',
     marker: {
       enabled: true,
       symbol: 'triangle-down',
-      width: 5,
-      height: 5,
-      lineWidth: 4,
+      // symbol: 'S',
+      // width: 5,
+      // height: 5,
+      radius: bigMarker,
+      lineWidth: 2,
       color: '#FF0000',
       fillColor: '#FF0000'  // red
     }
@@ -95,11 +105,19 @@ router.get("/tx/last", async (req, res) => {
     yAxis: 3
   }
 
-  let tradePrice = {
-    name: 'tradePrice',
+  let tradeProfit = {
+    name: 'tradeProfit',
     type: 'line',
-    data: tradePrices,
-    yAxis: 0
+    data: tradeProfits,
+    lineWidth: 1,
+    color: '#444',
+    yAxis: 3,
+    marker: {
+      radius: 1,
+      symbol: 'circle',
+      fillColor: null,
+      lineColor: '#444'
+    }
   }
 
   let chartData: any[] = [
@@ -110,8 +128,26 @@ router.get("/tx/last", async (req, res) => {
     volume,
     position,
     // delta
-    tradePrice
+    tradeProfit
   ]
+
+  // dont show up :/
+  let annotations = {
+    // labelOptions: {
+    //   backgroundColor: 'rgba(255,255,255,0.5)',
+    //   verticalAlign: 'top',
+    //   y: 15
+    // },
+    labels: [{
+      point: {
+        xAxis: 0,
+        yAxis: 0,
+        x: 30.98,
+        y: 5000
+      },
+      text: 'label'
+    }]
+  }
 
   let chartOptions = {
     tooltip: {
@@ -128,8 +164,11 @@ router.get("/tx/last", async (req, res) => {
       }
     },
 
+    annotations,
+
     chart: {
-      zoomType: 'x'
+      zoomType: 'xy',
+      title: 'swing run',
     },
     yAxis: [
       { // y0
@@ -157,7 +196,7 @@ router.get("/tx/last", async (req, res) => {
       },
       { // y3
         title: {
-          text: 'tradePrice'
+          text: 'tradeProfit'
         }
       }
 

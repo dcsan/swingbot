@@ -26,6 +26,7 @@ export interface IPrice {
   position?: number
   delta?: number
   tradePrice?: number
+  tradeProfit?: number
 }
 
 

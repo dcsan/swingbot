@@ -1,6 +1,7 @@
 *.env
 .DS_Store
 
+build
 
 # Logs
 logs
