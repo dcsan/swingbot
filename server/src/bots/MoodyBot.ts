@@ -42,7 +42,7 @@ interface ITrade {
   tradePrice?: number
   tradeProfit?: number
   delta?: number
-  idx?: number
+  tick?: number
 }
 
 interface IResult {
@@ -52,7 +52,7 @@ interface IResult {
 }
 
 interface IBotState {
-  idx: number
+  tick: number
   runProfit: number
   position?: number  // currently held value
   delta?: number     // position vs. price
@@ -74,12 +74,12 @@ class MoodyBot {
   }
   state: IBotState = {
     runProfit: 0,
-    idx: 0,
+    tick: 0,
     tradeCount: 0,
     tradeLog: [],
     position: 0
   }
-  txLogger: any // streamWriter
+  csvLogger: any // streamWriter
   calco: Kalk
   report: IRunReport
   config: IBotConfig
@@ -89,7 +89,7 @@ class MoodyBot {
     config.logfile = config.logfile || 'tradeLog.csv'
     this.config = config
 
-    this.txLogger = this.createLogger(config)
+    this.csvLogger = this.createCsvLogger(config)
     this.calco = new Kalk(config.calcConfig)
     this.report = {
       marketMin: 1e10,  // start with a huge number to go down from
@@ -107,11 +107,11 @@ class MoodyBot {
     await TxLog.removeAll()
   }
 
-  createLogger(config: IBotConfig): any {
+  createCsvLogger(config: IBotConfig): any {
     const logPath = path.join(__dirname, '../../logs', config.logfile)
     let options = {
       headers: [
-        'idx',
+        'tick',
         'gdate',
         'open',
         'last1', 'last2',
@@ -131,7 +131,6 @@ class MoodyBot {
         'sell',
         'tradeProfit',
         'runProfit',
-
       ]
     }
     try {
@@ -139,14 +138,16 @@ class MoodyBot {
     } catch (err) {
       logger.warn('no log file existed', logPath)
     }
-    let txLogger = csvWriter(options)
+    let csvLogger = csvWriter(options)
     let stream = fs.createWriteStream(logPath)
-    txLogger.pipe(stream)
-    return txLogger
+    csvLogger.pipe(stream)
+    return csvLogger
   }
 
+  // called each tick
   updateReport(price: number) {
-    if (this.state.idx === 0) {
+    if (this.state.tick === 0) {
+      // first tick record market start
       this.report.marketStart = price
     }
     this.report.marketEnd = price   // even if its just one tick
@@ -154,16 +155,17 @@ class MoodyBot {
     if (price > this.report.marketMax) this.report.marketMax = price
   }
 
+  // main update event
+  // check for buy/selll
   async tick(ip: IPrice) {
     let price = ip.open || 0  // NOTE - using price.open as the marker
     price = RikMath.fixed(price, 3)
     this.updateReport(price)
-    this.state.idx++
     this.prices.push(price)
     this.prices = this.prices.slice(- STACK_SIZE)
     let calc: IKalk = this.calco.calcAll(this.prices)
     if (this.state.position) {
-      this.state.delta = calc.last1 - this.state.position!
+      this.state.delta = RikMath.fixed(calc.last1 - this.state.position!)
     } else {
       this.state.delta = 0  // no delta if no position
     }
@@ -183,6 +185,8 @@ class MoodyBot {
     }
 
     await this.logTick(calc, result, ip)
+    this.state.tick++
+
     return ({
       calc,
       result,
@@ -204,7 +208,7 @@ class MoodyBot {
       buy: calc.last1,
       tradePrice: calc.last1,
       active: true,
-      idx: this.state.idx
+      tick: this.state.tick
     }
     this.state.position = calc.last1
     this.state.tradeCount++
@@ -227,16 +231,17 @@ class MoodyBot {
       return result
     } // else sell
 
-    let tradeProfit = calc.last1 - this.state.position
+    let tradeProfit = RikMath.fixed(calc.last1 - this.state.position)
     this.state.runProfit += tradeProfit
-    logger.silly('tradeProfit', tradeProfit)
-    logger.silly('position', this.state.position)
-    logger.silly('calc', calc)
+    this.state.runProfit = RikMath.fixed(this.state.runProfit)
+    // logger.silly('tradeProfit', tradeProfit)
+    // logger.silly('position', this.state.position)
+    // logger.silly('calc', calc)
 
     let trade: ITrade = {
       type: 'SELL',
       sell: calc.last1,
-      idx: this.state.idx,
+      tick: this.state.tick,
       tradePrice: calc.last1,
       tradeProfit,
       active: false,
@@ -287,12 +292,14 @@ class MoodyBot {
   }
 
   async logTick(calc: IKalk, result: IResult, ip: IPrice) {
+    console.log('tick', this.state.tick)
     // console.log('merging', calc, result, this.trade, this.state) // check no collisions
     let obj = Object.assign(ip, calc, this.trade, result, this.state)
-    this.txLogger.write(obj)  // not async
+    await this.csvLogger.write(obj)  // not async
     await TxLog.log(obj)
   }
 
+  // called at end of run
   makeReport(): IRunReport {
     let report:IRunReport = this.report
     report.runProfit = RikMath.fixed(this.state.runProfit)
@@ -300,7 +307,7 @@ class MoodyBot {
     report.marketDeltaVal = RikMath.fixed(report.marketEnd! - report.marketStart!)
     report.marketDeltaPct = RikMath.pct(report.marketDeltaVal / report.marketStart!)
     report.marketRange = (report.marketMax - report.marketMin)
-    report.ticks = this.state.idx
+    report.ticks = this.state.tick
     report.logfile = this.config.logfile!
     this.report = report
     return report

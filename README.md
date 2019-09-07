@@ -154,22 +154,15 @@ So the profit/loss per trade is the delta between the green/red pairs (not shown
 
 You can click to zoom in on the trade sequence:
 
-![Trade Run](server/cdn/readme/trade-detail.png)
+![Trade Run](server/cdn/readme/trade-flow.png)
 
-Then in the CSV at tick 180
-
-![Trade Run](server/cdn/readme/tick-180-csv.png)
-
-
-## TODO
-- more modular strategies
-- Add more technical analysis types (tulip)
-- Client to visualize trades in graph format
-- Profitable bot strategy :D
-
-Please get in touch if you'd like to help add features!
-dc AT rikai.co
-
+so here you can see close up of the graph. At tick 914
+1. Bot bought in at 4557
+2. hodl a bit
+3. sold too late after drop
+4. bought in again
+5. sold and made small profit
+(all paper trades)
 
 
 ## add binance keys to use realtime data
@@ -181,3 +174,12 @@ The bot does NOT currently do any trades, but in any case you can create an API 
 
 Otherwise just leave the keys out, we can also run against historical downloaded data.
 
+
+## TODO
+- more modular strategies
+- Add more technical analysis types (tulip)
+- Client to visualize trades in graph format
+- Profitable bot strategy :D
+
+Please get in touch if you'd like to help add features!
+dc AT rikai.co

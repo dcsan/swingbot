@@ -16,6 +16,7 @@ class TxLog {
   public static async init() {
     if (coll) return coll
     coll = await BaseModel.init('TxLog')
+    coll.createIndex({tick: 1})
     return coll
   }
 
@@ -55,7 +56,7 @@ class TxLog {
   public static async log(tx: any) {
     // logger.log('log', tx)
     tx.stamp = Date.now()
-    TxLog.check()
+    // TxLog.check()
     await coll.insertOne(tx)
   }
 

@@ -17,7 +17,7 @@ router.get("/ping", async (req, res) => {
 router.get("/tx/last", async (req, res) => {
   let finder = {}
   let fields = { open: 1 }
-  let sorter = {idx: 1} // forward in time
+  let sorter = {tick: 1} // forward in time
   let txList = await TxLog.find(finder, fields, sorter)
   // txList = txList.slice(700, 900)
 
