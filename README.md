@@ -50,7 +50,7 @@ $ NODE_ENV=local ts-node src/runners/SwingRun.ts
 [    SwingRun]  |  log: swinger.log.csv
 ```
 
-![Logs](server/static/swing-run.png)
+![Logs](server/cdn/readme/swing-run.png)
 
 So, not a good trading strategy.
 It lost **$131** even though the market went up by nearly $2342 in the same period.
@@ -126,7 +126,7 @@ You can see more details of the trading log in a csv file eg `logs/swinger.log.c
 
 As the trader sim runs it writes logs here.
 
-![Logs](server/static/trade-log.png)
+![Logs](server/cdn/readme/trade-log.png)
 
 (viewing the CSV file with a VScode plugin)
 The date formats are compatible with google docs if you want to import and see graphs.
@@ -148,16 +148,17 @@ Red arrow down = sell event (trade start)
 Green arrow up = buy event (trade end)
 Dotted line = held position
 
-![Trade Run](server/cdn/trade-run.png)
+![Trade Run](server/cdn/readme/trade-run.png)
 
 So the profit/loss per trade is the delta between the green/red pairs (not shown on the graph currently)
 
 You can click to zoom in on the trade sequence:
 
-![Trade Run](server/cdn/trade-detail.png)
+![Trade Run](server/cdn/readme/trade-detail.png)
 
 Then in the CSV at tick 180
-![Trade Run](server/cdn/tick-180-csv)
+
+![Trade Run](server/cdn/readme/tick-180-csv.png)
 
 
 ## TODO
