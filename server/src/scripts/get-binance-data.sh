@@ -7,6 +7,9 @@ set -x
 
 datafile=data/binance.1hr.raw.csv
 
+# move out previous version
+mv $datafile "$datafile.bak"
+
 echo "getting raw data to ${datafile}"
 curl https://www.cryptodatadownload.com/cdd/Binance_BTCUSDT_1h.csv > $datafile
 

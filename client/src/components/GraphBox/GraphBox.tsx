@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import deepmerge from 'deepmerge'
 
 import './GraphBox.css'
 
@@ -25,7 +26,15 @@ import HighchartsReact from 'highcharts-react-official';
 //   />
 // </div>
 
-
+const graphOptions = {
+  title: {
+    text: 'SwingBot'
+  },
+  subtitle:
+  {
+    text: 'test run'
+  }
+}
 
 // interface ISeriesData {
 //   type: string,
@@ -64,11 +73,14 @@ function GraphBox() {
         '/tx/last',
       );
 
-      console.log('result.data', result.data)
+      // console.log('result.data', result.data)
       console.log('result.data.botRun', result.data.botRun)
-      console.log('result.data.chartOptions', result.data.chartOptions)
-
-      setData(result.data);
+      // console.log('result.data.chartOptions', result.data.chartOptions)
+      // let data = Object.assign(result.data, graphOptions)
+      // let data = Object.assign(result.data, {})
+      let chartOptions  = deepmerge(graphOptions, result.data.chartOptions) as Highcharts.Options
+      // console.log('chartOptions', chartOptions)
+      setData({botRun: result.data.botRun, chartOptions});
     };
     fetchData();
   }, [] );
@@ -80,8 +92,8 @@ function GraphBox() {
   }
 
   console.log('render chartOptions', data.chartOptions)
-  const colors = Highcharts.getOptions().colors
-  console.log('colors', colors)
+  // const colors = Highcharts.getOptions().colors
+  // console.log('colors', colors)
 
 
   return (

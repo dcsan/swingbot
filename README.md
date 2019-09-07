@@ -13,15 +13,7 @@ also `ts-node` for running scripts at the cmd-line:
 ## config
 
     cd server
-    cp src/config/local.env.example src/config/local.env
-
-edit local.env to add these keys if you want to use realtime Binance market data.
-The bot does NOT currently do any trades, but in any case you can create an API key that only has 'read' capability
-
-    BinanceApiKey=YOUR_API_KEY_HERE
-    BinanceApiSecret=YOUR_API_SECRET_HERE
-
-Otherwise just leave the keys out, we can also run against historical downloaded data.
+    cp src/config/example.env src/config/local.env
 
 ## install
 
@@ -37,13 +29,13 @@ you'll want to run this script to load it into mongoDB though.
 
     src/scripts/get-binance-data.sh
 
-this will download some CSV data, and load into a local mongoDB
+this will download a few years of hourly CSV data, and load into a local mongoDB.
 
 ## Running a test bot
 Using `ts-node` to run typescript at the command line from 'server' directory. If you use `nodemon` it will rerun on each code edit.
-
 The `runners` folder contains some bots run with different configs.
 
+    cd server
     ts-node src/runners/SwingRun.ts
 
 you'll get something like this:
@@ -60,15 +52,20 @@ $ NODE_ENV=local ts-node src/runners/SwingRun.ts
 
 ![Logs](server/static/swing-run.png)
 
-So, obviously not a good trading strategy!
+So, not a good trading strategy.
 It lost **$131** even though the market went up by nearly $2342 in the same period.
 
+priceList.length = list of price points in the data (eg duration/interval)
 767 prices ~= 31 days (binance historical data is at hourly intervals)
+market start/end = how much market changed in the period
 
 Well, its just a basic bot without much strategy or signals yet.
 But this simple framework allows other ideas to be tested.
 
-note: at this time the bot just buys 1BTC each tx, no matter what the price.
+Note: at this time the bot just buys 1BTC each tx, no matter what the price.
+
+This creates a log file in `logs/swinger.log.csv` (see below)
+
 
 ## Basic how it works:
 The MoodyBot (mood swings geddit?) just trades on basic swings, with no awareness of pressure/resistance/volume or any other technical indicators (coming soon!)
@@ -139,11 +136,47 @@ Columns:
 - dir - up/down related to diff1
 - total - current running profit
 
+## Seeing the trades graphed
+A full log of the trades is saved logs
+You can view in a graph form by running the client app.
+
+    cd client
+    yarn start
+
+you can then see the strata graph and zoom in to check what happened.
+Red arrow down = sell event (trade start)
+Green arrow up = buy event (trade end)
+Dotted line = held position
+
+![Trade Run](server/cdn/trade-run.png)
+
+So the profit/loss per trade is the delta between the green/red pairs (not shown on the graph currently)
+
+You can click to zoom in on the trade sequence:
+
+![Trade Run](server/cdn/trade-detail.png)
+
+Then in the CSV at tick 180
+![Trade Run](server/cdn/tick-180-csv)
+
+
 ## TODO
 - more modular strategies
 - Add more technical analysis types (tulip)
 - Client to visualize trades in graph format
 - Profitable bot strategy :D
 
-Please get in touch if you'd like to help out!
+Please get in touch if you'd like to help add features!
 dc AT rikai.co
+
+
+
+## add binance keys to use realtime data
+edit local.env to add these keys if you want to use realtime Binance market data.
+The bot does NOT currently do any trades, but in any case you can create an API key that only has 'read' capability
+
+    BinanceApiKey=YOUR_API_KEY_HERE
+    BinanceApiSecret=YOUR_API_SECRET_HERE
+
+Otherwise just leave the keys out, we can also run against historical downloaded data.
+

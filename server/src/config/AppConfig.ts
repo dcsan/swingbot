@@ -7,17 +7,16 @@ const logger = console
 
 // logger.log('load AppConfig')
 
-let nodeEnv = process.env.NODE_ENV
-if (!nodeEnv) {
-  console.warn('NODE_ENV not set. using "local"')
-  nodeEnv = 'local'
+let appName = process.env.APP_NAME
+if (!appName) {
+  appName = 'SwingBot'
+  console.warn(`env. APP_NAME not set. using ${appName}`)
 }
 
-const envPath = path.join(__dirname, `${nodeEnv}.env`)
+const envPath = path.join(__dirname, `${ appName }.env`)
 dotenv.config({ path: envPath })
-// logger.info('using envPath', envPath)
+logger.info('using envPath', envPath)
 
-const appName = process.env.appName
 const mongoPath = process.env.mongoPath || ''
 const mongoUri = mongoPath + appName
 
@@ -31,15 +30,14 @@ const logMode = process.env.logMode || 'error|warn|green|fatal|report'
 const AppConfig = {
   BinanceApiKey: process.env.BinanceApiKey,
   BinanceApiSecret: process.env.BinanceApiSecret,
-  appName: appName,
   dbName: appName,
   mongoUri: mongoUri,
-  nodeEnv,
+  appName,
   logMode,
   testing,
   port: process.env.port || 6060,
   init() {
-    console.log('AppConfig,nodeEnv', nodeEnv)
+    console.log('AppConfig,appName', appName)
     console.log('AppConfig,logMode', logMode)
     console.log('AppConfig,init.done')
   }
