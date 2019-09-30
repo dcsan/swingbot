@@ -11,7 +11,7 @@ import Panel from '../../components/Panel/Panel'
 //   console.log(`evt: ${ evt }`)
 // })
 
-import { subscriber, messageService } from '../../services/MessageBus'
+import MessageBus from '../../services/MessageBus'
 
 class Live extends Component<{}, any>  {
 
@@ -25,7 +25,7 @@ class Live extends Component<{}, any>  {
   componentDidMount() {
     // We update the state in our subscribe callback from the counter stream
 
-    subscriber.subscribe((val: any) => {
+    MessageBus.subscriber.subscribe((val: any) => {
       let {number} = this.state
       this.setState({ number: number + val })
       console.log('sub.val', val)
@@ -40,7 +40,7 @@ class Live extends Component<{}, any>  {
       <h2>Live</h2>
         <h3>{ number }</h3>
         <Panel></Panel>
-      <button onClick={ (e) => messageService.send(1) }>next</button>
+      <button onClick={ (e) => MessageBus.messageService.send(1) }>next</button>
     </div>
   )
 }

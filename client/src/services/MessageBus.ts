@@ -1,15 +1,22 @@
 import { BehaviorSubject } from 'rxjs'
 
-const subscriber = new BehaviorSubject(0)
+const MessageBus = {
 
-const messageService = {
-  send: function (msg: any) {
-    console.log('messageService.send', msg)
-    subscriber.next(msg)
+  subscriber: new BehaviorSubject(0),
+
+  messageService: {
+    send: function (msg: any) {
+      console.log('messageService.send', msg)
+      MessageBus.subscriber.next(msg)
+    }
   }
+
 }
 
-export {
-  messageService,
-  subscriber
-}
+export default MessageBus
+
+
+// export {
+//   messageService,
+//   subscriber
+// }

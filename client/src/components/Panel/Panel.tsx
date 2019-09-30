@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { subscriber } from '../../services/MessageBus'
+import MessageBus from '../../services/MessageBus'
 
 class Panel extends Component<{}, any>  {
 
@@ -12,7 +12,7 @@ class Panel extends Component<{}, any>  {
   }
 
   componentDidMount() {
-    subscriber.subscribe((val: any) => {
+    MessageBus.subscriber.subscribe((val: any) => {
       let {number} = this.state
       this.setState({ number: number + val })
       console.log('panel.val', val)
@@ -23,7 +23,7 @@ class Panel extends Component<{}, any>  {
     console.log('render.state', this.state)
     let number = this.state.number || 0
     return (
-      <div>
+      <div className='panel-box'>
         panel
         <h3>{ number }</h3>
       </div>
