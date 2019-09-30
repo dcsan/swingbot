@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import './Live.css';
 
+import Panel from '../../components/Panel/Panel'
+
 // https://reactrocket.com/post/react-and-rxjs/
 
-import { Subject } from 'rxjs'
-
-const counter = new Subject();
-
+// import { Subject } from 'rxjs'
+// const counter = new Subject();
 // counter.subscribe((evt) => {
 //   console.log(`evt: ${ evt }`)
 // })
 
-
+import { subscriber, messageService } from '../../services/MessageBus'
 
 class Live extends Component<{}, any>  {
 
@@ -20,31 +20,27 @@ class Live extends Component<{}, any>  {
     this.state = {
       number: 1 as Number
     }
-    this.clicked = this.clicked.bind(this)
-  }
-
-  clicked() {
-    console.log('clicked', this.state)
-    counter.next(1)
   }
 
   componentDidMount() {
     // We update the state in our subscribe callback from the counter stream
 
-    counter.subscribe((val: any) => {
+    subscriber.subscribe((val: any) => {
+      let {number} = this.state
+      this.setState({ number: number + val })
       console.log('sub.val', val)
-      this.setState({ number: this.state.number + val })
     });
   }
 
   render() {
     console.log('render.state', this.state)
-    let num = this.state.number || 0
+    let number = this.state.number || 0
     return (
       <div className="App">
       <h2>Live</h2>
-      <h3>{ num }</h3>
-      <button onClick={ this.clicked }>next</button>
+        <h3>{ number }</h3>
+        <Panel></Panel>
+      <button onClick={ (e) => messageService.send(1) }>next</button>
     </div>
   )
 }

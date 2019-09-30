@@ -4,6 +4,7 @@ const subscriber = new BehaviorSubject(0)
 
 const messageService = {
   send: function (msg: any) {
+    console.log('messageService.send', msg)
     subscriber.next(msg)
   }
 }
