@@ -7,7 +7,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <div>
-        <h2>TraderBot</h2>
+        <h2>TraderBot | Home</h2>
         <GraphBox></GraphBox>
       </div>
     </div>
