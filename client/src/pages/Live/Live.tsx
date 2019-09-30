@@ -41,6 +41,8 @@ class Live extends Component<{}, any>  {
         <h3>{ number }</h3>
         <Panel></Panel>
       <button onClick={ (e) => MessageBus.messageService.send(1) }>next</button>
+      <button onClick={ (e) => MessageBus.animate() }>animate</button>
+      <button onClick={ (e) => MessageBus.generate() }>generate</button>
     </div>
   )
 }
